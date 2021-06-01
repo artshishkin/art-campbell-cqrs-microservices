@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+
+  axon-server:
+    image: axoniq/axonserver
+    ports:
+      - 8024:8024
+      - 8124:8124
+    volumes:
+      - axon-data:/data
+      - axon-eventdata:/eventdata
+      - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\infrastructure\config:/config
+
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+
+  mysql:
+    image: mysql
+    ports:
+      - '23306:3306'
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_USER: art_user
+      MYSQL_PASSWORD: art_password
+      MYSQL_DATABASE: bank_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+
+volumes:
+  axon-data:
+  axon-eventdata:
+  mongo-data:
+  mysql-data:
+
+
+
+
