@@ -21,4 +21,16 @@
         <module>user-query-api</module>
     </modules>
 
+    <properties>
+        <axon-spring-boot-starter.version>4.5</axon-spring-boot-starter.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-spring-boot-starter</artifactId>
+            <version>${axon-spring-boot-starter.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>
