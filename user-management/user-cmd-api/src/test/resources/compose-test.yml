@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+
+  axon-server:
+    image: axoniq/axonserver
+
+  mongo:
+    image: mongo
+
+
