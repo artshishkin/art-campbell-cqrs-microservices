@@ -16,4 +16,6 @@ public interface UserMapper {
     @Mapping(target = "id", expression = "java(UUID.randomUUID().toString())")
     User toModel(UserCreateDto dto);
 
+    UserCreateDto toDto(User user);
+
 }

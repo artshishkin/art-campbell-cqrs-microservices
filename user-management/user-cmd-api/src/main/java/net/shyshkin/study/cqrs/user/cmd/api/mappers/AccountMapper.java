@@ -9,4 +9,6 @@ public interface AccountMapper {
 
     Account toModel(AccountDto dto);
 
+    AccountDto toDto(Account account);
+
 }
