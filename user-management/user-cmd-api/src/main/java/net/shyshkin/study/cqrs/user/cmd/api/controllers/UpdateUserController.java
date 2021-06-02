@@ -25,7 +25,7 @@ public class UpdateUserController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BaseResponse registerUser(@Valid @RequestBody UserCreateDto dto, @PathVariable String id) {
+    public BaseResponse updateUser(@Valid @RequestBody UserCreateDto dto, @PathVariable String id) {
 
         User user = mapper.toModel(dto);
         user.setId(id);
