@@ -95,6 +95,29 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
                 .contains("User not found");
     }
 
+    @Test
+    @Order(60)
+    void getAllUsers() {
+
+        //given
+        User newUser = registerNewUser();
+        long usersCount = repository.count();
+
+        //when
+        var responseEntity = restTemplate.getForEntity("/api/v1/users", UserLookupResponse.class);
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getUsers())
+                .hasSize((int) usersCount)
+                .allSatisfy(user -> assertThat(user)
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrProperty("id"))
+                .allSatisfy(user -> assertThat(user.getAccount())
+                        .satisfies(account -> assertThat(account.getPassword()).startsWith("{bcrypt}")))
+                .allSatisfy(user -> log.debug("User retrieved by Http Request: {}", user));
+    }
+
     User registerNewUser() {
 
         //given
