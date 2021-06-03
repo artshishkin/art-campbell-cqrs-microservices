@@ -118,6 +118,32 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
                 .allSatisfy(user -> log.debug("User retrieved by Http Request: {}", user));
     }
 
+    @Nested
+    class SearchTest {
+
+        @Test
+        void searchInFirstname() {
+
+            //given
+            if (existingUser == null)
+                registerNewUser();
+
+            String firstname = existingUser.getFirstname();
+            String filter = firstname.substring(1, firstname.length() - 1);
+            log.debug("Searching for `{}`", filter);
+
+            //when
+            var responseEntity = restTemplate.getForEntity("/api/v1/users/search/{filter}", UserLookupResponse.class, filter);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody().getUsers())
+                    .hasSizeGreaterThanOrEqualTo(1)
+                    .allSatisfy(user -> assertThat(user.getFirstname() + user.getLastname() + user.getEmailAddress() + user.getAccount().getUsername()).contains(filter))
+                    .allSatisfy(user -> log.debug("Search user: {}", user));
+        }
+    }
+
     User registerNewUser() {
 
         //given

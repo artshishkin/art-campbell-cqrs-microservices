@@ -40,8 +40,8 @@ public class UserLookupController {
         return queryGateway.query(query, UserLookupResponse.class).join();
     }
 
-    @GetMapping("/search")
-    public UserLookupResponse searchUsers(@RequestBody String filter) {
+    @GetMapping("/search/{filter}")
+    public UserLookupResponse searchUsers(@PathVariable String filter) {
         var query = new SearchUsersQuery(filter);
         return queryGateway.query(query, UserLookupResponse.class).join();
     }
