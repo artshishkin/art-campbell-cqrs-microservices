@@ -13,6 +13,9 @@ import net.shyshkin.study.cqrs.user.query.api.commontest.AbstractDockerComposeTe
 import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
 import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
@@ -22,9 +25,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @Slf4j
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
@@ -118,30 +124,36 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
                 .allSatisfy(user -> log.debug("User retrieved by Http Request: {}", user));
     }
 
-    @Nested
-    class SearchTest {
+    private static Stream<Arguments> searchTest() {
+        return Stream.of(
+                arguments("firstname", (Function<User, String>) User::getFirstname),
+                arguments("lastname", (Function<User, String>) User::getLastname),
+                arguments("emailAddress", (Function<User, String>) User::getEmailAddress),
+                arguments("account.username", (Function<User, String>) user -> user.getAccount().getUsername())
+        );
+    }
 
-        @Test
-        void searchInFirstname() {
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource
+    @DisplayName("Searching for phrase that can be met in:")
+    void searchTest(String fieldSearch, Function<User, String> filterFunc) {
 
-            //given
-            if (existingUser == null)
-                registerNewUser();
+        //given
+        if (existingUser == null)
+            registerNewUser();
+        String fieldValue = filterFunc.apply(existingUser);
+        String filter = fieldValue.substring(1, fieldValue.length() - 1);
+        log.debug("Searching for `{}` that can be met in `{}`", filter, fieldSearch);
 
-            String firstname = existingUser.getFirstname();
-            String filter = firstname.substring(1, firstname.length() - 1);
-            log.debug("Searching for `{}`", filter);
+        //when
+        var responseEntity = restTemplate.getForEntity("/api/v1/users/search/{filter}", UserLookupResponse.class, filter);
 
-            //when
-            var responseEntity = restTemplate.getForEntity("/api/v1/users/search/{filter}", UserLookupResponse.class, filter);
-
-            //then
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(responseEntity.getBody().getUsers())
-                    .hasSizeGreaterThanOrEqualTo(1)
-                    .allSatisfy(user -> assertThat(user.getFirstname() + user.getLastname() + user.getEmailAddress() + user.getAccount().getUsername()).contains(filter))
-                    .allSatisfy(user -> log.debug("Search user: {}", user));
-        }
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getUsers())
+                .hasSizeGreaterThanOrEqualTo(1)
+                .allSatisfy(user -> assertThat(user.getFirstname() + user.getLastname() + user.getEmailAddress() + user.getAccount().getUsername()).contains(filter))
+                .allSatisfy(user -> log.debug("Search user: {}", user));
     }
 
     User registerNewUser() {
