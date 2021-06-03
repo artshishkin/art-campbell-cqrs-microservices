@@ -15,6 +15,12 @@
     <description>OAuth 2.0 Authorization Server</description>
 
     <dependencies>
+
+        <dependency>
+            <groupId>net.shyshkin.study.cqrs</groupId>
+            <artifactId>user-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
