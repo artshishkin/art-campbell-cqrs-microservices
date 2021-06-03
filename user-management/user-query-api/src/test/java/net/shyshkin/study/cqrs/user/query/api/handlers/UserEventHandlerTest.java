@@ -137,6 +137,31 @@ class UserEventHandlerTest extends AbstractDockerComposeTest {
                 });
     }
 
+    @Test
+    @Order(30)
+    void onUserRemovedEvent() {
+
+        //given
+        if (existingUser == null)
+            onUserRegisteredEvent();
+
+        var userId = existingUser.getId();
+
+        //when
+        var requestEntity = RequestEntity.delete("/{id}", userId).build();
+        ResponseEntity<BaseResponse> responseEntity = userCmdApiRestTemplate
+                .exchange(requestEntity, BaseResponse.class);
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        BaseResponse body = responseEntity.getBody();
+        assertThat(body.getMessage()).isEqualTo("User removed successfully");
+
+        await()
+                .timeout(2, TimeUnit.SECONDS)
+                .untilAsserted(() -> assertThat(repository.existsById(userId)).isFalse());
+    }
+
     private UserCreateDto createNewUser() {
         var accountDto = AccountDto.builder()
                 .username(FAKER.name().username())
