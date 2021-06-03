@@ -2,6 +2,7 @@ package net.shyshkin.study.cqrs.user.cmd.api.dto;
 
 import lombok.Getter;
 import lombok.ToString;
+import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 
 @Getter
 @ToString
