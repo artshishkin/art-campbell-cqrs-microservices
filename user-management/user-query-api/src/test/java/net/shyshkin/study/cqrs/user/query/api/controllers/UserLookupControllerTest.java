@@ -156,6 +156,20 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
                 .allSatisfy(user -> log.debug("Search user: {}", user));
     }
 
+    @Test
+    void searchTest_absent() {
+
+        //given
+        String filter = UUID.randomUUID().toString();
+
+        //when
+        var responseEntity = restTemplate.getForEntity("/api/v1/users/search/{filter}", BaseResponse.class, filter);
+
+        //then
+        log.debug("Response Entity: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
     User registerNewUser() {
 
         //given

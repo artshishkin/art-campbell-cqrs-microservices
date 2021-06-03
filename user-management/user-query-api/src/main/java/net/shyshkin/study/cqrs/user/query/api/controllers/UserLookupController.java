@@ -41,9 +41,12 @@ public class UserLookupController {
     }
 
     @GetMapping("/search/{filter}")
-    public UserLookupResponse searchUsers(@PathVariable String filter) {
+    public ResponseEntity<UserLookupResponse> searchUsers(@PathVariable String filter) {
         var query = new SearchUsersQuery(filter);
-        return queryGateway.query(query, UserLookupResponse.class).join();
+        UserLookupResponse lookupResponse = queryGateway.query(query, UserLookupResponse.class).join();
+        if (lookupResponse.getUsers() == null || lookupResponse.getUsers().isEmpty())
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(lookupResponse);
     }
 
     @ExceptionHandler(Exception.class)
