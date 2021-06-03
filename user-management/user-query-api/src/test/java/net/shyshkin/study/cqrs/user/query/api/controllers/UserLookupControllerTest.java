@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +76,23 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
                 .allSatisfy(user -> assertThat(user.getAccount())
                         .isEqualToIgnoringGivenFields(newUser.getAccount(), "password")
                         .satisfies(account -> assertThat(account.getPassword()).startsWith("{bcrypt}")));
+    }
+
+    @Test
+    @Order(52)
+    void getUserById_absent() {
+
+        //given
+        String userId = UUID.randomUUID().toString();
+
+        //when
+        var responseEntity = restTemplate.getForEntity("/api/v1/users/{id}", BaseResponse.class, userId);
+
+        //then
+        log.debug("Response entity: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntity.getBody().getMessage())
+                .contains("User not found");
     }
 
     User registerNewUser() {

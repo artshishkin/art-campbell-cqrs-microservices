@@ -7,10 +7,15 @@ import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindAllUsersQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByIdQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.SearchUsersQuery;
+import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.CompletionException;
+
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @RestController
@@ -42,12 +47,25 @@ public class UserLookupController {
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
     public BaseResponse handle(Exception ex) {
         log.debug("Exception happened: {}:{}",
                 ex.getClass().getName(),
                 ex.getMessage()
         );
         return new BaseResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(CompletionException.class)
+    public ResponseEntity<BaseResponse> handle(CompletionException ex) {
+        log.debug("Exception happened: {}:{}",
+                ex.getClass().getName(),
+                ex.getMessage()
+        );
+        if (ex.getCause() != null && ex.getCause() instanceof QueryExecutionException && ex.getCause().getMessage().contains("User not found")) {
+            return ResponseEntity.status(NOT_FOUND).body(new BaseResponse(ex.getCause().getMessage()));
+        }
+
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new BaseResponse(ex.getMessage()));
     }
 }

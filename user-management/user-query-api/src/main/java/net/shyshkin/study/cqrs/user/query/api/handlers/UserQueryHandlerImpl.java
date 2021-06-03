@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
+import net.shyshkin.study.cqrs.user.query.api.exceptions.UserNotFoundException;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindAllUsersQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByIdQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.SearchUsersQuery;
@@ -11,7 +12,6 @@ import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -33,7 +33,7 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
         List<User> users = repository
                 .findById(query.getId())
                 .map(List::of)
-                .orElse(Collections.emptyList());
+                .orElseThrow(() -> new UserNotFoundException("User not found by id `" + query.getId() + "`"));
         return new UserLookupResponse(users);
     }
 
