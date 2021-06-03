@@ -2,10 +2,10 @@ package net.shyshkin.study.cqrs.user.cmd.api.controllers;
 
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.cqrs.user.cmd.api.dto.AccountDto;
 import net.shyshkin.study.cqrs.user.cmd.api.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.cmd.api.dto.RegisterUserResponse;
-import net.shyshkin.study.cqrs.user.cmd.api.dto.UserCreateDto;
+import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
+import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.Role;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;

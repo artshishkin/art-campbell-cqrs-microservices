@@ -1,4 +1,4 @@
-package net.shyshkin.study.cqrs.user.cmd.api.dto;
+package net.shyshkin.study.cqrs.user.core.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
 package net.shyshkin.study.cqrs.user.cmd.api.mappers;
 
-import net.shyshkin.study.cqrs.user.cmd.api.dto.UserCreateDto;
+import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
