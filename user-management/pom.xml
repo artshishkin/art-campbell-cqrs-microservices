@@ -19,6 +19,7 @@
         <module>user-core</module>
         <module>user-cmd-api</module>
         <module>user-query-api</module>
+        <module>user-oauth-2_0</module>
     </modules>
 
     <properties>
