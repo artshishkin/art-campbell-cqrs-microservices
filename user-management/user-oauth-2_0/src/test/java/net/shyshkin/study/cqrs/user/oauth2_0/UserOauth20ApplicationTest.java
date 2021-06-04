@@ -1,8 +1,8 @@
 package net.shyshkin.study.cqrs.user.oauth2_0;
 
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.cqrs.user.core.dto.OAuthResponse;
 import net.shyshkin.study.cqrs.user.oauth2_0.commontest.AbstractDockerComposeTest;
-import net.shyshkin.study.cqrs.user.oauth2_0.dto.OAuthResponse;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Value;

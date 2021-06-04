@@ -1,4 +1,4 @@
-package net.shyshkin.study.cqrs.user.oauth2_0.dto;
+package net.shyshkin.study.cqrs.user.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

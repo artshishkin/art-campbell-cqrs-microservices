@@ -1,7 +1,7 @@
 package net.shyshkin.study.cqrs.user.oauth2_0;
 
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.cqrs.user.oauth2_0.dto.OAuthResponse;
+import net.shyshkin.study.cqrs.user.core.dto.OAuthResponse;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
