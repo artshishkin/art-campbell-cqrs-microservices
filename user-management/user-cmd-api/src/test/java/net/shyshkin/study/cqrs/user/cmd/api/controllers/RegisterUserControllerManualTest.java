@@ -4,7 +4,6 @@ import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.cmd.api.dto.RegisterUserResponse;
 import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
-import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.Role;
 import org.junit.jupiter.api.Disabled;
@@ -13,7 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
@@ -32,16 +33,25 @@ class RegisterUserControllerManualTest {
     @Autowired
     TestRestTemplate restTemplate;
 
+    // go to postman and get token for existing user, i.e. username = `shyshkin.art`, password = `P@ssW0rd!`
+    String jwtAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjI4MTY4NDEsInVzZXJfbmFtZSI6InNoeXNoa2luLmFydCIsImF1dGhvcml0aWVzIjpbIldSSVRFX1BSSVZJTEVHRSJdLCJqdGkiOiI5NFZHa2E4YUZxSlFKU25pNlYwSGNBc3RpM1UiLCJjbGllbnRfaWQiOiJzcHJpbmdiYW5rQ2xpZW50Iiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl19.rvTagfG5KNah7wZccifbRA3g-mq8JbtgNx2z3D1eL1w";
+
     @Test
     void registerUser_valid() {
         //given
         UserCreateDto dto = createNewUser();
 
         //when
+        RequestEntity<UserCreateDto> requestEntity = RequestEntity
+                .post("/api/v1/users")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                .body(dto);
+
         ResponseEntity<RegisterUserResponse> responseEntity = restTemplate
-                .postForEntity("/api/v1/users", dto, RegisterUserResponse.class);
+                .exchange(requestEntity, RegisterUserResponse.class);
 
         //then
+        log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         var registerUserResponse = responseEntity.getBody();
         assertThat(registerUserResponse)
@@ -62,8 +72,13 @@ class RegisterUserControllerManualTest {
             dto.setFirstname(null);
 
             //when
-            ResponseEntity<BaseResponse> responseEntity = restTemplate
-                    .postForEntity("/api/v1/users", dto, BaseResponse.class);
+            RequestEntity<UserCreateDto> requestEntity = RequestEntity
+                    .post("/api/v1/users")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                    .body(dto);
+
+            ResponseEntity<RegisterUserResponse> responseEntity = restTemplate
+                    .exchange(requestEntity, RegisterUserResponse.class);
 
             //then
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -82,8 +97,13 @@ class RegisterUserControllerManualTest {
             dto.getAccount().setPassword("FOO");
 
             //when
-            ResponseEntity<BaseResponse> responseEntity = restTemplate
-                    .postForEntity("/api/v1/users", dto, BaseResponse.class);
+            RequestEntity<UserCreateDto> requestEntity = RequestEntity
+                    .post("/api/v1/users")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                    .body(dto);
+
+            ResponseEntity<RegisterUserResponse> responseEntity = restTemplate
+                    .exchange(requestEntity, RegisterUserResponse.class);
 
             //then
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -102,8 +122,13 @@ class RegisterUserControllerManualTest {
             dto.getAccount().setRoles(null);
 
             //when
-            ResponseEntity<BaseResponse> responseEntity = restTemplate
-                    .postForEntity("/api/v1/users", dto, BaseResponse.class);
+            RequestEntity<UserCreateDto> requestEntity = RequestEntity
+                    .post("/api/v1/users")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                    .body(dto);
+
+            ResponseEntity<RegisterUserResponse> responseEntity = restTemplate
+                    .exchange(requestEntity, RegisterUserResponse.class);
 
             //then
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -122,8 +147,13 @@ class RegisterUserControllerManualTest {
             dto.getAccount().setRoles(Collections.emptyList());
 
             //when
-            ResponseEntity<BaseResponse> responseEntity = restTemplate
-                    .postForEntity("/api/v1/users", dto, BaseResponse.class);
+            RequestEntity<UserCreateDto> requestEntity = RequestEntity
+                    .post("/api/v1/users")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                    .body(dto);
+
+            ResponseEntity<RegisterUserResponse> responseEntity = restTemplate
+                    .exchange(requestEntity, RegisterUserResponse.class);
 
             //then
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
