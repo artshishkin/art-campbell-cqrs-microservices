@@ -10,6 +10,7 @@ import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class RegisterUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('WRITE_PRIVILEGE')")
     public RegisterUserResponse registerUser(@Valid @RequestBody UserCreateDto dto) {
 
         User user = mapper.toModel(dto);

@@ -9,6 +9,7 @@ import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class UpdateUserController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasAuthority('WRITE_PRIVILEGE')")
     public BaseResponse updateUser(@Valid @RequestBody UserCreateDto dto, @PathVariable String id) {
 
         User user = mapper.toModel(dto);

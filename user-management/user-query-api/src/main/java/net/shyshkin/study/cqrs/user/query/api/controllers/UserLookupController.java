@@ -10,6 +10,7 @@ import net.shyshkin.study.cqrs.user.query.api.queries.SearchUsersQuery;
 import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.CompletionException;
@@ -26,6 +27,7 @@ public class UserLookupController {
     private final QueryGateway queryGateway;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_PRIVILEGE')")
     public ResponseEntity<UserLookupResponse> getAllUsers() {
         var query = new FindAllUsersQuery();
         UserLookupResponse response = queryGateway.query(query, UserLookupResponse.class).join();
@@ -35,12 +37,14 @@ public class UserLookupController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('READ_PRIVILEGE')")
     public UserLookupResponse getUserById(@PathVariable String id) {
         var query = new FindUserByIdQuery(id);
         return queryGateway.query(query, UserLookupResponse.class).join();
     }
 
     @GetMapping("/search/{filter}")
+    @PreAuthorize("hasAuthority('READ_PRIVILEGE')")
     public ResponseEntity<UserLookupResponse> searchUsers(@PathVariable String filter) {
         var query = new SearchUsersQuery(filter);
         UserLookupResponse lookupResponse = queryGateway.query(query, UserLookupResponse.class).join();

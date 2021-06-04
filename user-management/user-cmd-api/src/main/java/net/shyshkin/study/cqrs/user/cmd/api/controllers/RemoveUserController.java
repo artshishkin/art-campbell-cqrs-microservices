@@ -8,6 +8,7 @@ import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import org.axonframework.commandhandling.CommandExecutionException;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.*;
@@ -23,6 +24,7 @@ public class RemoveUserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(OK)
+    @PreAuthorize("hasAuthority('WRITE_PRIVILEGE')")
     public BaseResponse removeUser(@PathVariable String id) {
 
         var command = new RemoveUserCommand(id);
