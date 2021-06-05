@@ -14,3 +14,11 @@ services:
       "spring.data.mongodb.host": mongo
       "axon.axonserver.servers": axon-server
 
+  oauth20-server:
+    image: artarkatesoft/cqrs-user-oauth-2_0
+    environment:
+      "spring.data.mongodb.host": mongo
+      "axon.axonserver.servers": axon-server
+
+
+

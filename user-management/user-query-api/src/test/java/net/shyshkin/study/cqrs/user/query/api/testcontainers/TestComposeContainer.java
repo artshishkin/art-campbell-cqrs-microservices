@@ -18,6 +18,9 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
     private String userCmdApiHost;
     private Integer userCmdApiPort;
 
+    private String oauthHost;
+    private Integer oauthPort;
+
     public TestComposeContainer() {
         super(new File(COMPOSE_FILE_PATH));
     }
@@ -29,6 +32,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .withExposedService("mongo_1", 27017)
                     .withExposedService("user-cmd-api_1", 8080, Wait.forHealthcheck())
+                    .withExposedService("oauth20-server_1", 8080)
             ;
         }
         return container;
@@ -58,6 +62,13 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
 
         userCmdApiHost = container.getServiceHost("user-cmd-api_1", 8080);
         userCmdApiPort = container.getServicePort("user-cmd-api_1", 8080);
+
+        log.debug("user-cmd-api: {}:{}", userCmdApiHost, userCmdApiPort);
+
+        oauthHost = container.getServiceHost("oauth20-server_1", 8080);
+        oauthPort = container.getServicePort("oauth20-server_1", 8080);
+
+        log.debug("oauth20-server: {}:{}", oauthHost, oauthPort);
 
     }
 
