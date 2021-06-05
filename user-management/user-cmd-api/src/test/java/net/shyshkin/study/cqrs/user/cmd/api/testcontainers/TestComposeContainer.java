@@ -16,6 +16,9 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
 
     private static boolean containerStarted = false;
 
+    private String oauthHost;
+    private Integer oauthPort;
+
     public TestComposeContainer() {
         super(new File(COMPOSE_FILE_PATH));
     }
@@ -25,7 +28,9 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
             container = new TestComposeContainer()
                     .withExposedService("axon-server_1", 8124,
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
-                    .withExposedService("mongo_1", 27017);
+                    .withExposedService("mongo_1", 27017)
+                    .withExposedService("oauth20-server_1", 8080)
+            ;
         }
         return container;
     }
@@ -51,6 +56,11 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
         System.setProperty("MONGODB_PORT", String.valueOf(mongodbPort));
 
         log.debug("MongoDB: {}:{}", mongodbHost, mongodbPort);
+
+        oauthHost = container.getServiceHost("oauth20-server_1", 8080);
+        oauthPort = container.getServicePort("oauth20-server_1", 8080);
+
+        log.debug("oauth20-server: {}:{}", oauthHost, oauthPort);
     }
 
     @Override

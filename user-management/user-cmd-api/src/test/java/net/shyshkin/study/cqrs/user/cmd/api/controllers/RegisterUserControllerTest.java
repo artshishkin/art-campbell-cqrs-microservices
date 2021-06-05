@@ -2,14 +2,18 @@ package net.shyshkin.study.cqrs.user.cmd.api.controllers;
 
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.cqrs.user.cmd.api.commontest.AbstractAxonServerTest;
+import net.shyshkin.study.cqrs.user.cmd.api.commontest.AbstractDockerComposeTest;
 import net.shyshkin.study.cqrs.user.cmd.api.dto.RegisterUserResponse;
 import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
 import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.Role;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -20,9 +24,22 @@ import java.util.Locale;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-class RegisterUserControllerTest extends AbstractAxonServerTest {
+class RegisterUserControllerTest extends AbstractDockerComposeTest {
 
     private static final Faker FAKER = Faker.instance(new Locale("en-GB"));
+
+    @LocalServerPort
+    int randomServerPort;
+
+    @BeforeEach
+    void setUp() {
+        if (jwtAccessToken == null)
+            getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
+
+        restTemplate = new TestRestTemplate(restTemplateBuilder
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                .rootUri("http://localhost:" + randomServerPort));
+    }
 
     @Test
     void registerUser_valid() {

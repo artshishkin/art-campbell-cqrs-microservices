@@ -3,14 +3,18 @@ package net.shyshkin.study.cqrs.user.cmd.api.controllers;
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.cmd.api.commands.RegisterUserCommand;
-import net.shyshkin.study.cqrs.user.cmd.api.commontest.AbstractAxonServerTest;
+import net.shyshkin.study.cqrs.user.cmd.api.commontest.AbstractDockerComposeTest;
 import net.shyshkin.study.cqrs.user.cmd.api.mappers.UserMapper;
 import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.core.models.Account;
 import net.shyshkin.study.cqrs.user.core.models.Role;
 import net.shyshkin.study.cqrs.user.core.models.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +26,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-class RemoveUserControllerTest extends AbstractAxonServerTest {
+class RemoveUserControllerTest extends AbstractDockerComposeTest {
 
     private static final Faker FAKER = Faker.instance(new Locale("en-GB"));
 
@@ -30,6 +34,19 @@ class RemoveUserControllerTest extends AbstractAxonServerTest {
     UserMapper mapper;
 
     static User existingUser = null;
+
+    @LocalServerPort
+    int randomServerPort;
+
+    @BeforeEach
+    void setUp() {
+        if (jwtAccessToken == null)
+            getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
+
+        restTemplate = new TestRestTemplate(restTemplateBuilder
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                .rootUri("http://localhost:" + randomServerPort));
+    }
 
     @Test
     void removeUser_success() {
