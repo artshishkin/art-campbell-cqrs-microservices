@@ -3,7 +3,6 @@ package net.shyshkin.study.cqrs.user.oauth2_0.testcontainers;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.testcontainers.containers.DockerComposeContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
 
@@ -23,8 +22,6 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
     public static TestComposeContainer getInstance() {
         if (container == null) {
             container = new TestComposeContainer()
-                    .withExposedService("axon-server_1", 8124,
-                            Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .withExposedService("mongo_1", 27017)
             ;
         }
@@ -37,13 +34,6 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
         if (!containerStarted) super.start();
 
         containerStarted = true;
-
-        String axonHost = container.getServiceHost("axon-server_1", 8124);
-        Integer axonPort = container.getServicePort("axon-server_1", 8124);
-        String servers = axonHost + ":" + axonPort;
-        System.setProperty("AXON_SERVERS", servers);
-
-        log.debug("AXON_SERVERS: {}", servers);
 
         String mongodbHost = container.getServiceHost("mongo_1", 27017);
         Integer mongodbPort = container.getServicePort("mongo_1", 27017);

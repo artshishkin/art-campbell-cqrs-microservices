@@ -106,7 +106,8 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
     void setUp() {
 
         if (jwtAccessToken == null)
-            getJwtAccessToken("shyshkina.kate", "P@ssW0rd1");
+            getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
+//            getJwtAccessToken("shyshkina.kate", "P@ssW0rd1");
 
         String host = composeContainer.getUserCmdApiHost();
         Integer port = composeContainer.getUserCmdApiPort();

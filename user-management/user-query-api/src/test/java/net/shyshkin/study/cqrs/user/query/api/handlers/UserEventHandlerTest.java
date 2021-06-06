@@ -28,6 +28,7 @@ import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
+@Disabled("Need to use jwtAccessToken")
 class UserEventHandlerTest extends AbstractDockerComposeTest {
 
     private static final Faker FAKER = Faker.instance(new Locale("en-GB"));

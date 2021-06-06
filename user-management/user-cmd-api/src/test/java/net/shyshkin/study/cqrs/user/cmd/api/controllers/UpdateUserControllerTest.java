@@ -65,6 +65,7 @@ class UpdateUserControllerTest extends AbstractDockerComposeTest {
                 .exchange(requestEntity, BaseResponse.class);
 
         //then
+        log.debug("Response Entity: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         var baseResponse = responseEntity.getBody();
         assertThat(baseResponse)
