@@ -2,7 +2,11 @@ package net.shyshkin.study.cqrs.apigateway;
 
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.apigateway.commontest.AbstractDockerComposeTest;
+import net.shyshkin.study.cqrs.apigateway.dto.RegisterUserResponse;
 import net.shyshkin.study.cqrs.apigateway.dto.UserLookupResponse;
+import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
+import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
+import net.shyshkin.study.cqrs.user.core.models.Role;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,7 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -23,6 +28,8 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
     ApplicationContext applicationContext;
 
     static User existingUser;
+    private static UserCreateDto userCreateDto;
+    private static String existingUserId;
 
     @BeforeEach
     void setUp() {
@@ -155,6 +162,49 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
                                                 .hasNoNullFieldsOrProperties()
                                                 .hasFieldOrPropertyWithValue("username", "shyshkina.kate"))))
                 );
+    }
+
+    @Test
+    @Order(86)
+    void registerUser() {
+
+        //given
+        userCreateDto = createNewUser();
+
+        //when
+        webTestClient.post().uri("/api/v1/users")
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .bodyValue(userCreateDto)
+                .exchange()
+
+                //then
+                .expectStatus().isCreated()
+                .expectBody(RegisterUserResponse.class)
+                .value(registerUserResponse -> assertThat(registerUserResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", "User registered successfully")
+                        .satisfies(response -> existingUserId = response.getId())
+                );
+    }
+
+    private UserCreateDto createNewUser() {
+        var accountDto = AccountDto.builder()
+                .username(FAKER.name().username())
+                .password(generatePassword())
+                .roles(List.of(Role.READ_PRIVILEGE))
+                .build();
+
+        return UserCreateDto.builder()
+                .firstname(FAKER.name().firstName())
+                .lastname(FAKER.name().lastName())
+                .emailAddress(FAKER.bothify("????##@gmail.com"))
+                .account(accountDto)
+                .build();
+    }
+
+    private String generatePassword() {
+        return FAKER.regexify("[a-z]{6}[1-9]{6}[A-Z]{6}[!@#&()]{2}");
     }
 
 }
