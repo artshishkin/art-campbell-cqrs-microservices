@@ -5,6 +5,7 @@ import net.shyshkin.study.cqrs.apigateway.commontest.AbstractDockerComposeTest;
 import net.shyshkin.study.cqrs.apigateway.dto.RegisterUserResponse;
 import net.shyshkin.study.cqrs.apigateway.dto.UserLookupResponse;
 import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
+import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.Role;
 import net.shyshkin.study.cqrs.user.core.models.User;
@@ -28,8 +29,8 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
     ApplicationContext applicationContext;
 
     static User existingUser;
-    private static UserCreateDto userCreateDto;
-    private static String existingUserId;
+    private static UserCreateDto userDto;
+    private static String existingUserDtoId;
 
     @BeforeEach
     void setUp() {
@@ -169,12 +170,12 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
     void registerUser() {
 
         //given
-        userCreateDto = createNewUser();
+        userDto = createNewUser();
 
         //when
         webTestClient.post().uri("/api/v1/users")
                 .headers(headers -> headers.setBearerAuth(jwtAccessToken))
-                .bodyValue(userCreateDto)
+                .bodyValue(userDto)
                 .exchange()
 
                 //then
@@ -184,7 +185,30 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
                         .satisfies(body -> log.debug("Response body: {}", body))
                         .hasNoNullFieldsOrProperties()
                         .hasFieldOrPropertyWithValue("message", "User registered successfully")
-                        .satisfies(response -> existingUserId = response.getId())
+                        .satisfies(response -> existingUserDtoId = response.getId())
+                );
+    }
+
+    @Test
+    @Order(90)
+    void updateUser() {
+
+        //given
+        userDto.setFirstname(userDto.getFirstname().toUpperCase());
+
+        //when
+        webTestClient.put().uri("/api/v1/users/{userId}", existingUserDtoId)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .bodyValue(userDto)
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody(BaseResponse.class)
+                .value(baseResponse -> assertThat(baseResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", "User updated successfully")
                 );
     }
 
