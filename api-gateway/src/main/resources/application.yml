@@ -2,6 +2,10 @@
 server:
   port: 2000
 
+logging.level:
+  net.shyshkin: debug
+
+
 # routes
 app.routes.uri:
   user-cmd-api: http://localhost:8091
