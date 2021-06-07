@@ -1,0 +1,24 @@
+# spring
+server:
+  port: 2000
+
+# routes
+app.routes.uri:
+  user-cmd-api: http://localhost:8091
+  user-query-api: http://localhost:8092
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: userCmdApi
+          uri: ${app.routes.uri.user-cmd-api}/api/v1/users/**
+          predicates:
+            - Path=/api/v1/users/**
+            - Method=POST,PUT,DELETE
+        - id: userQueryApi
+          uri: ${app.routes.uri.user-query-api}/api/v1/users/**
+          predicates:
+            - Path=/api/v1/users/**
+            - Method=GET
+
