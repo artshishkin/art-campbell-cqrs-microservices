@@ -1,9 +1,10 @@
 package net.shyshkin.study.cqrs.user.query.api.handlers;
 
-import com.github.javafaker.Faker;
-import lombok.*;
+import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
+import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.Role;
 import net.shyshkin.study.cqrs.user.core.models.User;
@@ -12,7 +13,7 @@ import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,13 +28,8 @@ import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
-@Disabled("Need to use jwtAccessToken")
 class UserEventHandlerTest extends AbstractDockerComposeTest {
 
-    private static final Faker FAKER = Faker.instance(new Locale("en-GB"));
-
-    @Autowired
-    RestTemplateBuilder restTemplateBuilder;
 
     RestTemplate userCmdApiRestTemplate;
 
@@ -46,12 +41,17 @@ class UserEventHandlerTest extends AbstractDockerComposeTest {
     @BeforeEach
     void setUp() {
 
+        if (jwtAccessToken == null)
+            getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
+//            getJwtAccessToken("shyshkina.kate", "P@ssW0rd1");
+
         String host = composeContainer.getUserCmdApiHost();
         Integer port = composeContainer.getUserCmdApiPort();
         String rootUri = String.format("http://%s:%d/api/v1/users", host, port);
         log.debug("User Command API Root URI: {}", rootUri);
 
         userCmdApiRestTemplate = restTemplateBuilder
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
                 .rootUri(rootUri)
                 .build();
     }
@@ -180,13 +180,6 @@ class UserEventHandlerTest extends AbstractDockerComposeTest {
 
     private String generatePassword() {
         return FAKER.regexify("[a-z]{6}[1-9]{6}[A-Z]{6}[!@#&()]{2}");
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    private static class BaseResponse {
-        private String message;
     }
 
     @Getter

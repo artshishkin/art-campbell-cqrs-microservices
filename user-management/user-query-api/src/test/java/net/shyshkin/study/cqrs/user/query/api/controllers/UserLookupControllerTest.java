@@ -1,12 +1,10 @@
 package net.shyshkin.study.cqrs.user.query.api.controllers;
 
-import com.github.javafaker.Faker;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
 import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
-import net.shyshkin.study.cqrs.user.core.dto.OAuthResponse;
 import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.Role;
 import net.shyshkin.study.cqrs.user.core.models.User;
@@ -18,20 +16,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.autoconfigure.web.server.LocalManagementPort;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -45,62 +35,12 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class UserLookupControllerTest extends AbstractDockerComposeTest {
 
-    private static final Faker FAKER = Faker.instance(new Locale("en-GB"));
-
-    @Autowired
-    RestTemplateBuilder restTemplateBuilder;
-
     RestTemplate userCmdApiRestTemplate;
-
-    RestTemplate oauthServerRestTemplate;
-
-    private static String clientId = "springbankClient";
-    private static String clientSecret = "springbankSecret";
 
     @Autowired
     UserRepository repository;
 
     static User existingUser = null;
-
-    static String jwtAccessToken;
-
-    @LocalServerPort
-    int randomServerPort;
-
-    @LocalManagementPort
-    int randomManagementPort;
-
-    private void getJwtAccessToken(String username, String plainPassword) {
-        oauthServerRestTemplate = restTemplateBuilder
-                .basicAuthentication(clientId, clientSecret)
-                .rootUri(String.format("http://%s:%d", composeContainer.getOauthHost(), composeContainer.getOauthPort()))
-                .build();
-
-        //when
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", "password");
-
-        map.add("username", username);
-        map.add("password", plainPassword);
-
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
-
-        var responseEntity = oauthServerRestTemplate
-                .postForEntity("/oauth/token", requestEntity, OAuthResponse.class);
-
-        //then
-        log.debug("Response from OAuth2.0 server: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        OAuthResponse oAuthResponse = responseEntity.getBody();
-        assertThat(oAuthResponse)
-                .hasNoNullFieldsOrProperties();
-
-        jwtAccessToken = oAuthResponse.getAccessToken();
-        log.debug("JWT Access Token is {}", jwtAccessToken);
-    }
 
     @BeforeEach
     void setUp() {
