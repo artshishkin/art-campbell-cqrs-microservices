@@ -18,7 +18,9 @@ public class WebSecurityConfig {
     @Bean
     SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) {
         http.authorizeExchange()
-                .anyExchange().permitAll();
+                .anyExchange().permitAll()
+                .and()
+                .csrf().disable();
 
         return http.build();
     }
