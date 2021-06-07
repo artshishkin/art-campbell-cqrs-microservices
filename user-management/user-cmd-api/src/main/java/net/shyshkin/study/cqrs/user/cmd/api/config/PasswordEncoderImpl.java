@@ -1,4 +1,4 @@
-package net.shyshkin.study.cqrs.user.cmd.api.security;
+package net.shyshkin.study.cqrs.user.cmd.api.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

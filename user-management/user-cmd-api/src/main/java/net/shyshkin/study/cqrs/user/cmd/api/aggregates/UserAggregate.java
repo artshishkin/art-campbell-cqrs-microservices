@@ -5,7 +5,7 @@ import net.shyshkin.study.cqrs.user.cmd.api.commands.RegisterUserCommand;
 import net.shyshkin.study.cqrs.user.cmd.api.commands.RemoveUserCommand;
 import net.shyshkin.study.cqrs.user.cmd.api.commands.UpdateUserCommand;
 import net.shyshkin.study.cqrs.user.cmd.api.config.ApplicationContextProvider;
-import net.shyshkin.study.cqrs.user.cmd.api.security.PasswordEncoder;
+import net.shyshkin.study.cqrs.user.cmd.api.config.PasswordEncoder;
 import net.shyshkin.study.cqrs.user.core.events.UserRegisteredEvent;
 import net.shyshkin.study.cqrs.user.core.events.UserRemovedEvent;
 import net.shyshkin.study.cqrs.user.core.events.UserUpdatedEvent;
