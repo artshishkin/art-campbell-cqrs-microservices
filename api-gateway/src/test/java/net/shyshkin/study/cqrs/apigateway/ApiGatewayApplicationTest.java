@@ -2,6 +2,7 @@ package net.shyshkin.study.cqrs.apigateway;
 
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.apigateway.commontest.AbstractDockerComposeTest;
+import net.shyshkin.study.cqrs.apigateway.dto.UserLookupResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -68,6 +69,31 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
         byte[] responseBody = entityExchangeResult.getResponseBody();
         String body = new String(responseBody, StandardCharsets.UTF_8);
         log.debug("Response body: {}", body);
+    }
+
+    @Test
+    @Order(74)
+    void getAllUsers_ok_dto() {
+
+        //when
+        webTestClient.get().uri("/api/v1/users")
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody(UserLookupResponse.class)
+                .value(userLookupResponse -> assertThat(userLookupResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .satisfies(response -> assertThat(response.getUsers())
+                                .hasSizeGreaterThanOrEqualTo(2)
+                                .allSatisfy(user -> assertThat(user)
+                                        .hasNoNullFieldsOrProperties()
+                                        .satisfies(u -> assertThat(u.getAccount())
+                                                .hasNoNullFieldsOrProperties()
+                                                .satisfies(account -> assertThat(account.getUsername()).contains("shyshkin")))))
+                );
     }
 
 
