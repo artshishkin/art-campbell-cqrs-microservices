@@ -212,6 +212,25 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
                 );
     }
 
+    @Test
+    @Order(94)
+    void removeUser() {
+
+        //when
+        webTestClient.delete().uri("/api/v1/users/{userId}", existingUserDtoId)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody(BaseResponse.class)
+                .value(baseResponse -> assertThat(baseResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", "User removed successfully")
+                );
+    }
+
     private UserCreateDto createNewUser() {
         var accountDto = AccountDto.builder()
                 .username(FAKER.name().username())
