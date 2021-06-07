@@ -2,6 +2,7 @@ package net.shyshkin.study.cqrs.user.cmd.api.commontest;
 
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.cqrs.user.cmd.api.mappers.UserMapper;
 import net.shyshkin.study.cqrs.user.cmd.api.testcontainers.TestComposeContainer;
 import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
 import net.shyshkin.study.cqrs.user.core.dto.OAuthResponse;
@@ -66,6 +67,11 @@ public abstract class AbstractDockerComposeTest {
     protected int randomServerPort;
 
     RestTemplate oauthServerRestTemplate;
+
+    @Autowired
+    protected UserMapper mapper;
+
+    protected static User existingUser = null;
 
     protected String getJwtAccessToken(String username, String plainPassword) {
         oauthServerRestTemplate = restTemplateBuilder

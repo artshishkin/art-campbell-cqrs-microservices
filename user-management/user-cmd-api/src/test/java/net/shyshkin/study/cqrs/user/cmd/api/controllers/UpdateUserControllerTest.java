@@ -3,14 +3,12 @@ package net.shyshkin.study.cqrs.user.cmd.api.controllers;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.cmd.api.commands.RegisterUserCommand;
 import net.shyshkin.study.cqrs.user.cmd.api.commontest.AbstractDockerComposeTest;
-import net.shyshkin.study.cqrs.user.cmd.api.mappers.UserMapper;
 import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,11 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 class UpdateUserControllerTest extends AbstractDockerComposeTest {
-
-    @Autowired
-    UserMapper mapper;
-
-    static User existingUser = null;
 
     @BeforeEach
     void setUp() {
