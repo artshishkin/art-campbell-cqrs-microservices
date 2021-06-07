@@ -3,6 +3,7 @@ package net.shyshkin.study.cqrs.apigateway;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.apigateway.commontest.AbstractDockerComposeTest;
 import net.shyshkin.study.cqrs.apigateway.dto.UserLookupResponse;
+import net.shyshkin.study.cqrs.user.core.models.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,6 +21,8 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
 
     @Autowired
     ApplicationContext applicationContext;
+
+    static User existingUser;
 
     @BeforeEach
     void setUp() {
@@ -90,11 +93,39 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
                                 .hasSizeGreaterThanOrEqualTo(2)
                                 .allSatisfy(user -> assertThat(user)
                                         .hasNoNullFieldsOrProperties()
+                                        .satisfies(u -> existingUser = u)
                                         .satisfies(u -> assertThat(u.getAccount())
                                                 .hasNoNullFieldsOrProperties()
                                                 .satisfies(account -> assertThat(account.getUsername()).contains("shyshkin")))))
                 );
     }
 
+    @Test
+    @Order(78)
+    void getUserById() {
+
+        //given
+        String userId = existingUser.getId();
+
+        //when
+        webTestClient.get().uri("/api/v1/users/{userId}", userId)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody(UserLookupResponse.class)
+                .value(userLookupResponse -> assertThat(userLookupResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .satisfies(response -> assertThat(response.getUsers())
+                                .hasSize(1)
+                                .allSatisfy(user -> assertThat(user)
+                                        .hasNoNullFieldsOrProperties()
+                                        .hasFieldOrPropertyWithValue("id", userId)
+                                        .satisfies(u -> assertThat(u.getAccount())
+                                                .hasNoNullFieldsOrProperties())))
+                );
+    }
 
 }
