@@ -1,13 +1,20 @@
 package net.shyshkin.study.cqrs.user.cmd.api.commontest;
 
+import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.cmd.api.testcontainers.TestComposeContainer;
+import net.shyshkin.study.cqrs.user.core.dto.AccountDto;
 import net.shyshkin.study.cqrs.user.core.dto.OAuthResponse;
+import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
+import net.shyshkin.study.cqrs.user.core.models.Account;
+import net.shyshkin.study.cqrs.user.core.models.Role;
+import net.shyshkin.study.cqrs.user.core.models.User;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +25,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 @Testcontainers
 public abstract class AbstractDockerComposeTest {
+
+    protected static final Faker FAKER = Faker.instance(new Locale("en-GB"));
 
     @Autowired
     protected TestRestTemplate restTemplate;
@@ -49,9 +62,12 @@ public abstract class AbstractDockerComposeTest {
     protected static String clientId = "springbankClient";
     protected static String clientSecret = "springbankSecret";
 
+    @LocalServerPort
+    protected int randomServerPort;
+
     RestTemplate oauthServerRestTemplate;
 
-    protected void getJwtAccessToken(String username, String plainPassword) {
+    protected String getJwtAccessToken(String username, String plainPassword) {
         oauthServerRestTemplate = restTemplateBuilder
                 .basicAuthentication(clientId, clientSecret)
                 .rootUri(String.format("http://%s:%d", composeContainer.getOauthHost(), composeContainer.getOauthPort()))
@@ -79,9 +95,39 @@ public abstract class AbstractDockerComposeTest {
         assertThat(oAuthResponse)
                 .hasNoNullFieldsOrProperties();
 
-        jwtAccessToken = oAuthResponse.getAccessToken();
-        log.debug("JWT Access Token is {}", jwtAccessToken);
+        String token = oAuthResponse.getAccessToken();
+        log.debug("JWT Access Token is {}", token);
+        return token;
     }
 
+    protected User createNewUser() {
+        var account = Account.builder()
+                .username(FAKER.name().username())
+                .password(FAKER.regexify("[a-z]{6}[1-9]{6}[A-Z]{6}[!@#&()]{2}"))
+                .roles(List.of(Role.READ_PRIVILEGE))
+                .build();
 
+        return User.builder()
+                .id(UUID.randomUUID().toString())
+                .firstname(FAKER.name().firstName())
+                .lastname(FAKER.name().lastName())
+                .emailAddress(FAKER.bothify("????##@gmail.com"))
+                .account(account)
+                .build();
+    }
+
+    protected UserCreateDto createNewUserDto() {
+        var accountDto = AccountDto.builder()
+                .username(FAKER.name().username())
+                .password(FAKER.regexify("[a-z]{6}[1-9]{6}[A-Z]{6}[!@#&()]{2}"))
+                .roles(List.of(Role.READ_PRIVILEGE))
+                .build();
+
+        return UserCreateDto.builder()
+                .firstname(FAKER.name().firstName())
+                .lastname(FAKER.name().lastName())
+                .emailAddress(FAKER.bothify("????##@gmail.com"))
+                .account(accountDto)
+                .build();
+    }
 }

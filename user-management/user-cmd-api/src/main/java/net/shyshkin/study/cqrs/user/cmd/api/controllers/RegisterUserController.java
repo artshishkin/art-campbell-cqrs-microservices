@@ -10,6 +10,7 @@ import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -43,20 +44,27 @@ public class RegisterUserController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse handle(MethodArgumentNotValidException ex) {
-        log.debug("Exception happened: {}:{}",
-                ex.getClass().getName(),
-                ex.getMessage()
-        );
+        logException(ex);
         return new BaseResponse(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public BaseResponse handle(Exception ex) {
+        logException(ex);
+        return new BaseResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public BaseResponse handle(AccessDeniedException ex) {
+        logException(ex);
+        throw ex;
+    }
+
+    private void logException(Exception ex) {
         log.debug("Exception happened: {}:{}",
                 ex.getClass().getName(),
                 ex.getMessage()
         );
-        return new BaseResponse(ex.getMessage());
     }
 }
