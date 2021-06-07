@@ -21,6 +21,7 @@
 
     <modules>
         <module>user-management</module>
+        <module>api-gateway</module>
     </modules>
 
     <properties>
