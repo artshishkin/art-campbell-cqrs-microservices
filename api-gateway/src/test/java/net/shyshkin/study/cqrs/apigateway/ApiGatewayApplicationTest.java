@@ -128,4 +128,33 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
                 );
     }
 
+    @Test
+    @Order(82)
+    void searchUser() {
+
+        //given
+        String filter = "ate";
+
+        //when
+        webTestClient.get().uri("/api/v1/users/search/{filter}", filter)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody(UserLookupResponse.class)
+                .value(userLookupResponse -> assertThat(userLookupResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .satisfies(response -> assertThat(response.getUsers())
+                                .hasSize(1)
+                                .allSatisfy(user -> assertThat(user)
+                                        .hasNoNullFieldsOrProperties()
+                                        .hasFieldOrPropertyWithValue("emailAddress", "kate.shishkina@gmail.com")
+                                        .satisfies(u -> assertThat(u.getAccount())
+                                                .hasNoNullFieldsOrProperties()
+                                                .hasFieldOrPropertyWithValue("username", "shyshkina.kate"))))
+                );
+    }
+
 }
