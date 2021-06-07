@@ -10,6 +10,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
@@ -47,5 +48,27 @@ class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
         String body = new String(responseBody, StandardCharsets.UTF_8);
         log.debug("Response body: {}", body);
     }
+
+    @Test
+    @Order(72)
+    void getAllUsers_ok() {
+
+        //when
+        EntityExchangeResult<byte[]> entityExchangeResult = webTestClient.get().uri("/api/v1/users")
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.users[0].account.username").value(username -> assertThat((String) username).contains("shyshkin"))
+                .jsonPath("$.users[1].account.username").value(username -> assertThat((String) username).contains("shyshkin"))
+                .returnResult();
+
+        byte[] responseBody = entityExchangeResult.getResponseBody();
+        String body = new String(responseBody, StandardCharsets.UTF_8);
+        log.debug("Response body: {}", body);
+    }
+
 
 }
