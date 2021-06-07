@@ -42,12 +42,16 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
 
     static User existingUser = null;
 
+    private static String jwtReadAccessToken = null;
+
     @BeforeEach
     void setUp() {
 
         if (jwtAccessToken == null)
-            getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
-//            getJwtAccessToken("shyshkina.kate", "P@ssW0rd1");
+            jwtAccessToken = getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
+
+        if (jwtReadAccessToken == null)
+            jwtReadAccessToken = getJwtAccessToken("shyshkina.kate", "P@ssW0rd1");
 
         String host = composeContainer.getUserCmdApiHost();
         Integer port = composeContainer.getUserCmdApiPort();
@@ -60,7 +64,7 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
                 .build();
 
         restTemplate = new TestRestTemplate(restTemplateBuilder
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtAccessToken)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtReadAccessToken)
                 .rootUri("http://localhost:" + randomServerPort));
     }
 

@@ -60,7 +60,7 @@ public abstract class AbstractDockerComposeTest {
     private static final String CLIENT_ID = "springbankClient";
     private static final String CLIENT_SECRET = "springbankSecret";
 
-    protected void getJwtAccessToken(String username, String plainPassword) {
+    protected String getJwtAccessToken(String username, String plainPassword) {
         oauthServerRestTemplate = restTemplateBuilder
                 .basicAuthentication(CLIENT_ID, CLIENT_SECRET)
                 .rootUri(String.format("http://%s:%d", composeContainer.getOauthHost(), composeContainer.getOauthPort()))
@@ -88,7 +88,8 @@ public abstract class AbstractDockerComposeTest {
         assertThat(oAuthResponse)
                 .hasNoNullFieldsOrProperties();
 
-        jwtAccessToken = oAuthResponse.getAccessToken();
-        log.debug("JWT Access Token is {}", jwtAccessToken);
+        String token = oAuthResponse.getAccessToken();
+        log.debug("JWT Access Token is {}", token);
+        return token;
     }
 }

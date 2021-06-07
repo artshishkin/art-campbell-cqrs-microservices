@@ -30,7 +30,6 @@ import static org.awaitility.Awaitility.await;
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class UserEventHandlerTest extends AbstractDockerComposeTest {
 
-
     RestTemplate userCmdApiRestTemplate;
 
     @Autowired
@@ -42,8 +41,7 @@ class UserEventHandlerTest extends AbstractDockerComposeTest {
     void setUp() {
 
         if (jwtAccessToken == null)
-            getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
-//            getJwtAccessToken("shyshkina.kate", "P@ssW0rd1");
+            jwtAccessToken = getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
 
         String host = composeContainer.getUserCmdApiHost();
         Integer port = composeContainer.getUserCmdApiPort();
