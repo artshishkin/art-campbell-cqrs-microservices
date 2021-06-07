@@ -29,7 +29,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                     .withExposedService("axon-server_1", 8124,
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .withExposedService("mongo_1", 27017)
-                    .withExposedService("oauth20-server_1", 8080)
+                    .withExposedService("oauth20-server_1", 8080, Wait.forHealthcheck())
             ;
         }
         return container;
