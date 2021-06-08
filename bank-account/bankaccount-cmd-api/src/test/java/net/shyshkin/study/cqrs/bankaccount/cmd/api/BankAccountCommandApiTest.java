@@ -1,4 +1,4 @@
-package net.shyshkin.study.cqrs.bankaccount.cmd.api.controllers;
+package net.shyshkin.study.cqrs.bankaccount.cmd.api;
 
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.DepositFundsCommand;
@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class BankAccountCommandControllerTest extends AbstractDockerComposeTest {
+class BankAccountCommandApiTest extends AbstractDockerComposeTest {
 
     static UUID existingAccountId;
 
