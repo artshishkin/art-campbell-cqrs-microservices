@@ -1,0 +1,15 @@
+# spring
+server:
+  port: 9091
+spring.application.name: bank-account-command-api
+logging.level:
+  net.shyshkin: debug
+
+# mongodb
+spring.data.mongodb:
+  host: localhost
+  port: 27017
+  database: bank_account_db
+
+# security
+security.oauth2.resource.jwt.key-value: springbankSigningKey
