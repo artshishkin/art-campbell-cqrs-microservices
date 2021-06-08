@@ -3,6 +3,7 @@ package net.shyshkin.study.cqrs.bankaccount.cmd.api.controllers;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.OpenAccountCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commontest.AbstractDockerComposeTest;
+import net.shyshkin.study.cqrs.bankaccount.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.OpenAccountResponse;
 import net.shyshkin.study.cqrs.bankaccount.core.models.AccountType;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,6 +92,29 @@ class BankAccountCommandControllerTest extends AbstractDockerComposeTest {
             UUID idReceived = openAccountResponse.getId();
             URI location = responseEntity.getHeaders().getLocation();
             assertThat(location.toString()).contains("/api/v1/accounts/" + idReceived);
+        }
+
+        @Test
+        void createAccount_validationFailed() {
+            //given
+            var command = OpenAccountCommand.builder()
+                    .accountHolderId(UUID.randomUUID().toString())
+                    .openingBalance(new BigDecimal("-1.00"))
+                    .accountType(AccountType.CURRENT)
+                    .build();
+            String expectedMessage = "Account created successfully";
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/api/v1/accounts", command, BaseResponse.class);
+
+            //then
+            log.debug("Response: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            BaseResponse baseResponse = responseEntity.getBody();
+            assertThat(baseResponse.getMessage())
+                    .contains("Validation failed for argument")
+                    .contains("Opening balance must not be negative");
         }
     }
 
