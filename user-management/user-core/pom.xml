@@ -40,7 +40,6 @@
         <dependency>
             <groupId>org.axonframework.extensions.mongo</groupId>
             <artifactId>axon-mongo</artifactId>
-            <version>4.4</version>
         </dependency>
 
         <dependency>
