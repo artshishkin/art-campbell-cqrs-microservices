@@ -22,6 +22,7 @@
     <modules>
         <module>user-management</module>
         <module>api-gateway</module>
+        <module>bank-account</module>
     </modules>
 
     <properties>
