@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BankaccountQueryApiApplicationTests {
+//@Disabled("Only for manual tests -> Start `infrastructure/docker-compose` first")
+class BankAccountQueryApiApplicationManualTest {
 
     @Test
     void contextLoads() {
