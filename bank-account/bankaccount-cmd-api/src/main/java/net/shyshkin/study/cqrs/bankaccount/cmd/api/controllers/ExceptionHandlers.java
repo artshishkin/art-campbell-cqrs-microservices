@@ -1,6 +1,7 @@
 package net.shyshkin.study.cqrs.bankaccount.cmd.api.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.cqrs.bankaccount.cmd.api.exceptions.IdInCommandDoesNotMatchException;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.BaseResponse;
 import org.axonframework.commandhandling.CommandExecutionException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,13 @@ public class ExceptionHandlers {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public BaseResponse handle(MethodArgumentNotValidException ex) {
+        logException(ex);
+        return new BaseResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(IdInCommandDoesNotMatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse handle(IdInCommandDoesNotMatchException ex) {
         logException(ex);
         return new BaseResponse(ex.getMessage());
     }

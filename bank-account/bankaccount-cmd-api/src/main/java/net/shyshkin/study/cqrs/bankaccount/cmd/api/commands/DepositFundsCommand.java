@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -15,9 +17,11 @@ import java.util.UUID;
 @Builder
 public class DepositFundsCommand {
 
+    @NotNull(message = "id is mandatory")
     @TargetAggregateIdentifier
     private UUID id;
 
+    @Positive(message = "Amount must be positive")
     private BigDecimal amount;
 
 }
