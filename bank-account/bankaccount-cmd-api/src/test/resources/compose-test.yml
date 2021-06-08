@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+  axon-server:
+    image: axoniq/axonserver
+
+  mongo:
+    image: mongo
+
+  oauth20-server:
+    image: artarkatesoft/cqrs-user-oauth-2_0
+    environment:
+      "spring.data.mongodb.host": mongo
+
+
+
+
+
