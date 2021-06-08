@@ -11,9 +11,17 @@
 
     <artifactId>bank-account</artifactId>
 
+    <packaging>pom</packaging>
+
     <properties>
         <axon-spring-boot-starter.version>4.5</axon-spring-boot-starter.version>
     </properties>
+
+    <modules>
+        <module>bankaccount-core</module>
+        <module>bankaccount-cmd-api</module>
+        <module>bankaccount-query-api</module>
+    </modules>
 
     <dependencies>
 
