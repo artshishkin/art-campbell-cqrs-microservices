@@ -27,7 +27,9 @@ public class BankAccountCommandController {
     @PreAuthorize("hasAuthority('WRITE_PRIVILEGE')")
     public ResponseEntity<OpenAccountResponse> createAccount(@Valid @RequestBody OpenAccountCommand openAccountCommand) {
 
-        UUID id = commandGateway.sendAndWait(openAccountCommand);
+        UUID id = UUID.randomUUID();
+        openAccountCommand.setId(id);
+        commandGateway.send(openAccountCommand);
         OpenAccountResponse response = OpenAccountResponse.builder()
                 .id(id)
                 .message("Account created successfully")

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,11 +57,40 @@ class BankAccountCommandControllerTest extends AbstractDockerComposeTest {
             OpenAccountResponse openAccountResponse = responseEntity.getBody();
             assertThat(openAccountResponse)
                     .hasNoNullFieldsOrProperties()
-                    .hasFieldOrPropertyWithValue("id", id)
+                    .hasFieldOrPropertyWithValue("message", expectedMessage)
+            ;
+            UUID idReceived = openAccountResponse.getId();
+            assertThat(idReceived).isNotEqualTo(id);
+            URI location = responseEntity.getHeaders().getLocation();
+            assertThat(location.toString()).contains("/api/v1/accounts/" + idReceived);
+        }
+
+        @Test
+        void createAccount_nullId() {
+            //given
+            var command = OpenAccountCommand.builder()
+                    .accountHolderId(UUID.randomUUID().toString())
+                    .openingBalance(new BigDecimal("123.00"))
+                    .accountType(AccountType.CURRENT)
+                    .build();
+            String expectedMessage = "Account created successfully";
+
+            //when
+            ResponseEntity<OpenAccountResponse> responseEntity = restTemplate
+                    .postForEntity("/api/v1/accounts", command, OpenAccountResponse.class);
+
+            //then
+            log.debug("Response: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            OpenAccountResponse openAccountResponse = responseEntity.getBody();
+            assertThat(openAccountResponse)
+                    .hasNoNullFieldsOrProperties()
                     .hasFieldOrPropertyWithValue("message", expectedMessage)
             ;
 
-
+            UUID idReceived = openAccountResponse.getId();
+            URI location = responseEntity.getHeaders().getLocation();
+            assertThat(location.toString()).contains("/api/v1/accounts/" + idReceived);
         }
     }
 
