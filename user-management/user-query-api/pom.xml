@@ -25,7 +25,6 @@
         <dependency>
             <groupId>org.axonframework</groupId>
             <artifactId>axon-spring-boot-starter</artifactId>
-            <version>${axon-spring-boot-starter.version}</version>
         </dependency>
 
         <dependency>

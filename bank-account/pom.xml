@@ -13,10 +13,6 @@
 
     <packaging>pom</packaging>
 
-    <properties>
-        <axon-spring-boot-starter.version>4.5</axon-spring-boot-starter.version>
-    </properties>
-
     <modules>
         <module>bankaccount-core</module>
         <module>bankaccount-cmd-api</module>
@@ -24,7 +20,10 @@
     </modules>
 
     <dependencies>
-
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-spring-boot-starter</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

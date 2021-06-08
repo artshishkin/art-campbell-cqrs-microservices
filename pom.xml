@@ -34,6 +34,8 @@
         <docker.image.prefix>artarkatesoft</docker.image.prefix>
         <docker.image.name>cqrs-${project.artifactId}</docker.image.name>
 
+        <axon-spring-boot-starter.version>4.5</axon-spring-boot-starter.version>
+
     </properties>
 
     <dependencyManagement>
@@ -44,6 +46,11 @@
                 <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.axonframework</groupId>
+                <artifactId>axon-spring-boot-starter</artifactId>
+                <version>${axon-spring-boot-starter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -193,7 +200,7 @@
                                 <phase>install</phase>
                                 <goals>
                                     <goal>build</goal>
-<!--                                    <goal>push</goal>-->
+                                    <!--                                    <goal>push</goal>-->
                                 </goals>
                             </execution>
                         </executions>

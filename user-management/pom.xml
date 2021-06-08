@@ -22,10 +22,6 @@
         <module>user-oauth-2_0</module>
     </modules>
 
-    <properties>
-        <axon-spring-boot-starter.version>4.5</axon-spring-boot-starter.version>
-    </properties>
-
     <dependencies>
 
     </dependencies>
