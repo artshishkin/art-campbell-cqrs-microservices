@@ -1,6 +1,7 @@
 package net.shyshkin.study.cqrs.bankaccount.cmd.api;
 
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.CloseAccountCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.DepositFundsCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.OpenAccountCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.WithdrawFundsCommand;
@@ -235,6 +236,51 @@ class BankAccountCommandApiTest extends AbstractDockerComposeTest {
         assertThat(response.getMessage())
                 .contains("Validation failed for argument ")
                 .contains("default message [id is mandatory]")
+        ;
+    }
+
+    @Test
+    @Order(70)
+    void closeAccount_absentId() {
+        //given
+        UUID id = UUID.randomUUID();
+        String expectedMessage = "The aggregate was not found in the event store";
+
+        //when
+        var requestEntity = RequestEntity.delete("/api/v1/accounts/{id}", id).build();
+        var responseEntity = restTemplate
+                .exchange(requestEntity, BaseResponse.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+        ;
+    }
+
+    @Test
+    @Order(75)
+    void closeAccount_correct() {
+        //given
+        UUID id = existingAccountId;
+        var command = new CloseAccountCommand(id);
+        String expectedMessage = "Account closed successfully";
+
+        //when
+        var requestEntity = RequestEntity.delete("/api/v1/accounts/{id}", id).build();
+        var responseEntity = restTemplate
+                .exchange(requestEntity, BaseResponse.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
         ;
     }
 

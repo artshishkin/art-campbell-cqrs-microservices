@@ -1,15 +1,15 @@
 package net.shyshkin.study.cqrs.bankaccount.cmd.api.controllers;
 
 import lombok.RequiredArgsConstructor;
+import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.CloseAccountCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.OpenAccountCommand;
+import net.shyshkin.study.cqrs.bankaccount.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.OpenAccountResponse;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -39,5 +39,13 @@ public class BankAccountCommandController {
                 .build()
                 .toUri();
         return ResponseEntity.created(location).body(response);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('WRITE_PRIVILEGE')")
+    @ResponseStatus(HttpStatus.OK)
+    public BaseResponse closeAccount(@PathVariable UUID id) {
+        commandGateway.sendAndWait(new CloseAccountCommand(id));
+        return new BaseResponse("Account closed successfully");
     }
 }
