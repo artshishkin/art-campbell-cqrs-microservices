@@ -23,7 +23,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class ApiGatewayApplicationTest extends AbstractDockerComposeTest {
+class ApiGatewayApplicationUsersTest extends AbstractDockerComposeTest {
 
     @Autowired
     ApplicationContext applicationContext;

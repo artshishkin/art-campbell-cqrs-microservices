@@ -24,7 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {
         "app.routes.uri.user-cmd-api=${USER_CMD_API_URI}",
-        "app.routes.uri.user-query-api=${USER_QUERY_API_URI}"
+        "app.routes.uri.user-query-api=${USER_QUERY_API_URI}",
+        "app.routes.uri.bankaccount-cmd-api=${BANKACCOUNT_CMD_API_URI}"
 })
 @Testcontainers
 public abstract class AbstractDockerComposeTest {

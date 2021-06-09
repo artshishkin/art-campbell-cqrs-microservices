@@ -24,6 +24,9 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
     private String oauthHost;
     private Integer oauthPort;
 
+    private String bankAccountCmdApiHost;
+    private Integer bankAccountCmdApiPort;
+
     public TestComposeContainer() {
         super(new File(COMPOSE_FILE_PATH));
     }
@@ -37,6 +40,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                     .withExposedService("user-cmd-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("user-query-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("oauth20-server_1", 8080, Wait.forHealthcheck())
+                    .withExposedService("bankaccount-cmd-api_1", 8080, Wait.forHealthcheck())
             ;
         }
         return container;
@@ -80,6 +84,12 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
         oauthPort = container.getServicePort("oauth20-server_1", 8080);
 
         log.debug("oauth20-server: {}:{}", oauthHost, oauthPort);
+
+        bankAccountCmdApiHost = container.getServiceHost("bankaccount-cmd-api_1", 8080);
+        bankAccountCmdApiPort = container.getServicePort("bankaccount-cmd-api_1", 8080);
+
+        log.debug("bankaccount-cmd-api: {}:{}", bankAccountCmdApiHost, bankAccountCmdApiPort);
+        System.setProperty("BANKACCOUNT_CMD_API_URI", String.format("http://%s:%d", bankAccountCmdApiHost, bankAccountCmdApiPort));
 
     }
 

@@ -32,7 +32,7 @@ public class BankAccountCommandController {
         commandGateway.send(openAccountCommand);
         OpenAccountResponse response = OpenAccountResponse.builder()
                 .id(id)
-                .message("Account created successfully")
+                .message("Account opened successfully")
                 .build();
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .pathSegment(id.toString())

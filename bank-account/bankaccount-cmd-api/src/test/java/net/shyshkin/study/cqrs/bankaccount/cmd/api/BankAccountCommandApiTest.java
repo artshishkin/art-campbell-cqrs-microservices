@@ -49,7 +49,7 @@ class BankAccountCommandApiTest extends AbstractDockerComposeTest {
                 .openingBalance(new BigDecimal("123.00"))
                 .accountType(AccountType.CURRENT)
                 .build();
-        String expectedMessage = "Account created successfully";
+        String expectedMessage = "Account opened successfully";
 
         //when
         ResponseEntity<OpenAccountResponse> responseEntity = restTemplate
@@ -79,7 +79,7 @@ class BankAccountCommandApiTest extends AbstractDockerComposeTest {
                 .openingBalance(new BigDecimal("123.00"))
                 .accountType(AccountType.CURRENT)
                 .build();
-        String expectedMessage = "Account created successfully";
+        String expectedMessage = "Account opened successfully";
 
         //when
         ResponseEntity<OpenAccountResponse> responseEntity = restTemplate
