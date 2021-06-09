@@ -1,24 +1,34 @@
 package net.shyshkin.study.cqrs.bankaccount.query.api;
 
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.OpenAccountCommand;
+import net.shyshkin.study.cqrs.bankaccount.core.models.AccountType;
 import net.shyshkin.study.cqrs.bankaccount.query.api.commontest.AbstractDockerComposeTest;
 import net.shyshkin.study.cqrs.bankaccount.query.api.dto.AccountLookupResponse;
 import net.shyshkin.study.cqrs.bankaccount.query.api.queries.EqualityType;
+import net.shyshkin.study.cqrs.bankaccount.query.api.repositories.AccountRepository;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
 
     static UUID existingAccountId;
+    static String existingHolderId;
+
+    @Autowired
+    AccountRepository accountRepository;
 
     @BeforeEach
     void setUp() {
@@ -116,5 +126,55 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
                 .hasNoNullFieldsOrProperties()
                 .hasFieldOrPropertyWithValue("message", expectedMessage)
         ;
+    }
+
+    @Test
+    @Order(50)
+    void findAllAccounts_presentOne() {
+
+        //given
+        String expectedMessage = "Successfully returned 1 Bank Account(s)";
+        createRandomBankAccount();
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts", AccountLookupResponse.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(1)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount)
+                                .hasNoNullFieldsOrProperties()
+                                .hasFieldOrPropertyWithValue("id", existingAccountId)
+                                .hasFieldOrPropertyWithValue("accountHolderId", existingHolderId)
+                        )
+                )
+        ;
+    }
+
+    private void createRandomBankAccount() {
+        OpenAccountCommand openAccountCommand = OpenAccountCommand.builder()
+                .id(UUID.randomUUID())
+                .accountHolderId(UUID.randomUUID().toString())
+                .accountType(AccountType.CURRENT)
+                .openingBalance(new BigDecimal("321.12"))
+                .build();
+
+        commandGateway.sendAndWait(openAccountCommand);
+
+        existingAccountId = openAccountCommand.getId();
+        existingHolderId = openAccountCommand.getAccountHolderId();
+
+        await()
+                .timeout(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> assertThat(accountRepository.findById(existingAccountId))
+                        .hasValueSatisfying(bankAccount -> assertThat(bankAccount.getAccountHolderId())
+                                .isEqualTo(existingHolderId)));
     }
 }
