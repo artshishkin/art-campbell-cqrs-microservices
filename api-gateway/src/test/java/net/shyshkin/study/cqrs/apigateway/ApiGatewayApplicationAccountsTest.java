@@ -2,9 +2,7 @@ package net.shyshkin.study.cqrs.apigateway;
 
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.apigateway.commontest.AbstractDockerComposeTest;
-import net.shyshkin.study.cqrs.apigateway.dto.accounts.AccountType;
-import net.shyshkin.study.cqrs.apigateway.dto.accounts.OpenAccountCommand;
-import net.shyshkin.study.cqrs.apigateway.dto.accounts.OpenAccountResponse;
+import net.shyshkin.study.cqrs.apigateway.dto.accounts.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -57,6 +55,62 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                         .hasNoNullFieldsOrProperties()
                         .hasFieldOrPropertyWithValue("message", "Account opened successfully")
                         .satisfies(response -> existingAccountId = response.getId())
+                );
+    }
+
+    @Test
+    @Order(110)
+    void depositFunds_ok() {
+
+        //given
+        UUID id = existingAccountId;
+        var command = FundsCommand.builder()
+                .id(id)
+                .amount(new BigDecimal("100.00"))
+                .build();
+
+        //when
+        webTestClient.put().uri("/api/v1/accounts/{id}/deposits", id)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .bodyValue(command)
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody(BaseResponse.class)
+                .value(baseResponse -> assertThat(baseResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", "Funds deposited successfully")
+                );
+    }
+
+    @Test
+    @Order(120)
+    void depositFunds_wrongId() {
+
+        //given
+        UUID id = existingAccountId;
+        var command = FundsCommand.builder()
+                .id(UUID.randomUUID())
+                .amount(new BigDecimal("100.00"))
+                .build();
+
+        String expectedMessage = String.format("Account Id in URL `%s` does not match Id in command `%s`", id, command.getId());
+
+        //when
+        webTestClient.put().uri("/api/v1/accounts/{id}/deposits", id)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .bodyValue(command)
+                .exchange()
+
+                //then
+                .expectStatus().isBadRequest()
+                .expectBody(BaseResponse.class)
+                .value(baseResponse -> assertThat(baseResponse)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", expectedMessage)
                 );
     }
 

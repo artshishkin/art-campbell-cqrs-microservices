@@ -27,7 +27,7 @@ public class FundsCommandController {
             @Valid @RequestBody DepositFundsCommand depositFundsCommand) {
 
         if (!Objects.equals(depositFundsCommand.getId(), id))
-            throw new IdInCommandDoesNotMatchException(String.format("Account Id in URL `%s` does not match Id in command `%s`", depositFundsCommand.getId(), id));
+            throw new IdInCommandDoesNotMatchException(String.format("Account Id in URL `%s` does not match Id in command `%s`", id, depositFundsCommand.getId()));
 
         commandGateway.send(depositFundsCommand);
         return new BaseResponse("Funds deposited successfully");
@@ -40,7 +40,7 @@ public class FundsCommandController {
             @Valid @RequestBody WithdrawFundsCommand withdrawFundsCommand) {
 
         if (!Objects.equals(withdrawFundsCommand.getId(), id))
-            throw new IdInCommandDoesNotMatchException(String.format("Account Id in URL `%s` does not match Id in command `%s`", withdrawFundsCommand.getId(), id));
+            throw new IdInCommandDoesNotMatchException(String.format("Account Id in URL `%s` does not match Id in command `%s`", id, withdrawFundsCommand.getId()));
 
         commandGateway.sendAndWait(withdrawFundsCommand);
         return new BaseResponse("Funds withdrawn successfully");

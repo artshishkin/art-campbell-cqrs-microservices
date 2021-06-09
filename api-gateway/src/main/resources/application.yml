@@ -30,5 +30,5 @@ spring:
           uri: ${app.routes.uri.bankaccount-cmd-api}/api/v1/accounts/**
           predicates:
             - Path=/api/v1/accounts/**
-            - Method=POST,DELETE
+            - Method=POST,PUT,DELETE
 
