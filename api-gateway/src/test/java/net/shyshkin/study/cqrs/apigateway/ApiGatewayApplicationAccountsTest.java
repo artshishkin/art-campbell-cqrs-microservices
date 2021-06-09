@@ -123,7 +123,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                 );
     }
 
-    @DisplayName("When depositing or withdrawing funds Id in URL and in Command should match")
+    @DisplayName("When depositing or withdrawing funds amount should be valid")
     @ParameterizedTest(name = "[{index} {arguments}]")
     @ValueSource(strings = {"deposits", "withdrawals"})
     @Order(125)
@@ -155,5 +155,71 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                 );
     }
 
+    @Test
+    @Order(130)
+    void closeAccount_OK() {
+
+        //given
+        UUID id = existingAccountId;
+
+        //when
+        webTestClient.delete().uri("/api/v1/accounts/{id}", id)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody(BaseResponse.class)
+                .value(response -> assertThat(response)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", "Account closed successfully")
+                );
+    }
+
+    @Test
+    @Order(135)
+    void closeAccount_deleted() {
+
+        //given
+        UUID id = existingAccountId;
+        String expectedMessage = String.format("Aggregate with identifier [%s] not found. It has been deleted.", id);
+
+        //when
+        webTestClient.delete().uri("/api/v1/accounts/{id}", id)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isNotFound()
+                .expectBody(BaseResponse.class)
+                .value(response -> assertThat(response)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", expectedMessage)
+                );
+    }
+
+    @Test
+    @Order(140)
+    void closeAccount_absent() {
+
+        //given
+        UUID id = UUID.randomUUID();
+
+        //when
+        webTestClient.delete().uri("/api/v1/accounts/{id}", id)
+                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
+                .exchange()
+
+                //then
+                .expectStatus().isNotFound()
+                .expectBody(BaseResponse.class)
+                .value(response -> assertThat(response)
+                        .satisfies(body -> log.debug("Response body: {}", body))
+                        .hasNoNullFieldsOrProperties()
+                        .hasFieldOrPropertyWithValue("message", "The aggregate was not found in the event store")
+                );
+    }
 
 }
