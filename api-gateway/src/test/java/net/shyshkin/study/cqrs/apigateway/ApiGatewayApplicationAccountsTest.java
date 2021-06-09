@@ -27,10 +27,15 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
     @BeforeEach
     void setUp() {
-        webTestClient = WebTestClient.bindToApplicationContext(applicationContext).build();
 
         if (jwtAccessToken == null)
             jwtAccessToken = getJwtAccessToken("shyshkin.art", "P@ssW0rd!");
+
+        webTestClient = WebTestClient
+                .bindToApplicationContext(applicationContext)
+                .configureClient()
+                .defaultHeaders(headers -> headers.setBearerAuth(jwtAccessToken))
+                .build();
     }
 
     @Test
@@ -46,7 +51,6 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //when
         webTestClient.post().uri("/api/v1/accounts")
-                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
                 .bodyValue(command)
                 .exchange()
 
@@ -78,7 +82,6 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //when
         webTestClient.put().uri("/api/v1/accounts/{id}/{endpoint}", id, endpoint)
-                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
                 .bodyValue(command)
                 .exchange()
 
@@ -109,7 +112,6 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //when
         webTestClient.put().uri("/api/v1/accounts/{id}/{endpoint}", id, endpoint)
-                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
                 .bodyValue(command)
                 .exchange()
 
@@ -138,7 +140,6 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //when
         webTestClient.put().uri("/api/v1/accounts/{id}/{endpoint}", id, endpoint)
-                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
                 .bodyValue(command)
                 .exchange()
 
@@ -164,7 +165,6 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //when
         webTestClient.delete().uri("/api/v1/accounts/{id}", id)
-                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
                 .exchange()
 
                 //then
@@ -187,7 +187,6 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //when
         webTestClient.delete().uri("/api/v1/accounts/{id}", id)
-                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
                 .exchange()
 
                 //then
@@ -209,7 +208,6 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //when
         webTestClient.delete().uri("/api/v1/accounts/{id}", id)
-                .headers(headers -> headers.setBearerAuth(jwtAccessToken))
                 .exchange()
 
                 //then
