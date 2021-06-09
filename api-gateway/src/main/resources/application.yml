@@ -10,6 +10,7 @@ logging.level:
 app.routes.uri:
   user-cmd-api: http://localhost:8091
   user-query-api: http://localhost:8092
+  bankaccount-cmd-api: http://localhost:9091
 
 spring:
   cloud:
@@ -25,4 +26,9 @@ spring:
           predicates:
             - Path=/api/v1/users/**
             - Method=GET
+        - id: bankAccountCmdApi
+          uri: ${app.routes.uri.bankaccount-cmd-api}/api/v1/accounts/**
+          predicates:
+            - Path=/api/v1/accounts/**
+            - Method=POST,DELETE
 
