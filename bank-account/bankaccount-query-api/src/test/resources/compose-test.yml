@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+
+  axon-server:
+    image: axoniq/axonserver
+
+  mongo:
+    image: mongo
+
+  oauth20-server:
+    image: artarkatesoft/cqrs-user-oauth-2_0
+    environment:
+      "spring.data.mongodb.host": mongo
+
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_USER: art_user
+      MYSQL_PASSWORD: art_password
+      MYSQL_DATABASE: bank_db
+
+  bankaccount-cmd-api:
+    image: artarkatesoft/cqrs-bankaccount-cmd-api
+    environment:
+      "spring.data.mongodb.host": mongo
+      "axon.axonserver.servers": axon-server
