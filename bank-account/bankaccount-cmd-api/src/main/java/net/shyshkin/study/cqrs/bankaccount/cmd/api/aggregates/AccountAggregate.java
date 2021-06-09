@@ -82,7 +82,7 @@ public class AccountAggregate {
     public void handle(WithdrawFundsCommand command) {
 
         if (balance.compareTo(command.getAmount()) < 0)
-            throw new NotEnoughBalanceException(String.format("Withdrawal declined, insufficient finds for user `%s`", accountHolderId));
+            throw new NotEnoughBalanceException(String.format("Withdrawal declined, insufficient funds for account `%s`", id));
 
         var fundsWithdrawnEvent = FundsWithdrawnEvent.builder()
                 .id(command.getId())

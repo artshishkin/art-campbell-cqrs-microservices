@@ -3,6 +3,7 @@ package net.shyshkin.study.cqrs.bankaccount.cmd.api;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.DepositFundsCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.OpenAccountCommand;
+import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.WithdrawFundsCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commontest.AbstractDockerComposeTest;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.OpenAccountResponse;
@@ -147,6 +148,93 @@ class BankAccountCommandApiTest extends AbstractDockerComposeTest {
         assertThat(response)
                 .hasNoNullFieldsOrProperties()
                 .hasFieldOrPropertyWithValue("message", expectedMessage)
+        ;
+    }
+
+    @Test
+    @Order(50)
+    void withdrawFunds_correct() {
+        //given
+        UUID id = existingAccountId;
+        var command = WithdrawFundsCommand.builder()
+                .id(id)
+                .amount(new BigDecimal("1.00"))
+                .build();
+        String expectedMessage = "Funds withdrawn successfully";
+
+        //when
+        var requestEntity = RequestEntity
+                .put("/api/v1/accounts/{id}/withdrawals", id)
+                .body(command);
+
+        var responseEntity = restTemplate
+                .exchange(requestEntity, BaseResponse.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+        ;
+    }
+
+    @Test
+    @Order(55)
+    void withdrawFunds_balanceNotEnough() {
+        //given
+        UUID id = existingAccountId;
+        var command = WithdrawFundsCommand.builder()
+                .id(id)
+                .amount(new BigDecimal("100000000.00"))
+                .build();
+        String expectedMessage = String.format("Withdrawal declined, insufficient funds for account `%s`", id);
+
+        //when
+        var requestEntity = RequestEntity
+                .put("/api/v1/accounts/{id}/withdrawals", id)
+                .body(command);
+
+        var responseEntity = restTemplate
+                .exchange(requestEntity, BaseResponse.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+        ;
+    }
+
+    @Test
+    @Order(60)
+    void withdrawFunds_validationFailed() {
+        //given
+        UUID id = existingAccountId;
+        var command = WithdrawFundsCommand.builder()
+                .amount(new BigDecimal("1.00"))
+                .build();
+
+        //when
+        var requestEntity = RequestEntity
+                .put("/api/v1/accounts/{id}/withdrawals", id)
+                .body(command);
+
+        var responseEntity = restTemplate
+                .exchange(requestEntity, BaseResponse.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties();
+        assertThat(response.getMessage())
+                .contains("Validation failed for argument ")
+                .contains("default message [id is mandatory]")
         ;
     }
 

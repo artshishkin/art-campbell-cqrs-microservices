@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -56,8 +55,15 @@ public class ExceptionHandlers {
     @ExceptionHandler(CommandExecutionException.class)
     public ResponseEntity<BaseResponse> handle(CommandExecutionException ex) {
 
-        var status = (ex.getMessage().contains("not found")) ? NOT_FOUND : INTERNAL_SERVER_ERROR;
+        var status = INTERNAL_SERVER_ERROR;
 
+        if (ex.getMessage().contains("not found")) {
+            status = NOT_FOUND;
+        } else if (ex.getMessage().contains("Withdrawal declined, insufficient funds")) {
+            status = BAD_REQUEST;
+        }
+
+        logException(ex);
         return ResponseEntity
                 .status(status)
                 .body(new BaseResponse(ex.getMessage()));

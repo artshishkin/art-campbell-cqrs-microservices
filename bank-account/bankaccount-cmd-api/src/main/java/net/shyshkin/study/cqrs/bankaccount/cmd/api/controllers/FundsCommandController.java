@@ -2,6 +2,7 @@ package net.shyshkin.study.cqrs.bankaccount.cmd.api.controllers;
 
 import lombok.RequiredArgsConstructor;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.DepositFundsCommand;
+import net.shyshkin.study.cqrs.bankaccount.cmd.api.commands.WithdrawFundsCommand;
 import net.shyshkin.study.cqrs.bankaccount.cmd.api.exceptions.IdInCommandDoesNotMatchException;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.BaseResponse;
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -30,5 +31,18 @@ public class FundsCommandController {
 
         commandGateway.send(depositFundsCommand);
         return new BaseResponse("Funds deposited successfully");
+    }
+
+    @PutMapping("/withdrawals")
+    @PreAuthorize("hasAuthority('WRITE_PRIVILEGE')")
+    public BaseResponse withdrawFunds(
+            @PathVariable UUID id,
+            @Valid @RequestBody WithdrawFundsCommand withdrawFundsCommand) {
+
+        if (!Objects.equals(withdrawFundsCommand.getId(), id))
+            throw new IdInCommandDoesNotMatchException(String.format("Account Id in URL `%s` does not match Id in command `%s`", withdrawFundsCommand.getId(), id));
+
+        commandGateway.sendAndWait(withdrawFundsCommand);
+        return new BaseResponse("Funds withdrawn successfully");
     }
 }
