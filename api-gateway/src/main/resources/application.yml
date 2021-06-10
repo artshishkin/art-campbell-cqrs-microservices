@@ -8,10 +8,11 @@ logging.level:
 
 # routes
 app.routes.uri:
-  user-cmd-api: http://localhost:8091
-  user-query-api: http://localhost:8092
-  bankaccount-cmd-api: http://localhost:9091
-  bankaccount-query-api: http://localhost:9092
+  user-cmd-api: http://user-cmd-api:8080
+  user-query-api: http://user-query-api:8080
+  bankaccount-cmd-api: http://bankaccount-cmd-api:8080
+  bankaccount-query-api: http://bankaccount-query-api:8080
+  oauth20-server: http://oauth20-server:8080
 
 spring:
   cloud:
@@ -38,3 +39,14 @@ spring:
             - Path=/api/v1/accounts/**
             - Method=GET
 
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+app.routes.uri:
+  user-cmd-api: http://localhost:8091
+  user-query-api: http://localhost:8092
+  bankaccount-cmd-api: http://localhost:9091
+  bankaccount-query-api: http://localhost:9092
