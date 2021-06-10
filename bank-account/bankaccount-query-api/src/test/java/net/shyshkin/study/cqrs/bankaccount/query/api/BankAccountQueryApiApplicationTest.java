@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -247,6 +248,120 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
                 );
     }
 
+    @Test
+    @Order(70)
+    void findAllAccounts_presentFour() {
+
+        //given
+        String expectedMessage = "Successfully returned 4 Bank Account(s)";
+        create3BankAccounts();
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts", AccountLookupResponse.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(4)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount)
+                                .hasNoNullFieldsOrProperties()
+                        )
+                );
+    }
+
+    @Test
+    @Order(75)
+    void findAccountByHolderId_presentTwo() {
+
+        //given
+        String holderId = existingHolderId;
+        String expectedMessage = "Bank Accounts successfully returned";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts?accountHolderId={holderId}", AccountLookupResponse.class, holderId);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(2)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount)
+                                .hasNoNullFieldsOrProperties()
+                                .hasFieldOrPropertyWithValue("accountHolderId", existingHolderId)
+                        )
+                );
+    }
+
+    @Test
+    @Order(80)
+    void findAccountsWithBalance_greaterThen_mustBe2() {
+
+        //given
+        EqualityType equalityType = EqualityType.GREATER_THEN;
+        BigDecimal balance = new BigDecimal("200.00");
+
+        String expectedMessage = "Successfully returned 2 Bank Account(s)";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts?equalityType={equalityType}&balance={balance}",
+                        AccountLookupResponse.class, equalityType, balance);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(2)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount).hasNoNullFieldsOrProperties())
+                        .allSatisfy(bankAccount -> assertThat(bankAccount.getBalance()).isGreaterThan(balance))
+                );
+    }
+
+    @Test
+    @Order(85)
+    void findAccountsWithBalance_lessThen_mustBe3() {
+
+        //given
+        EqualityType equalityType = EqualityType.LESS_THEN;
+        BigDecimal balance = new BigDecimal("400.00");
+
+        String expectedMessage = "Successfully returned 3 Bank Account(s)";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts?equalityType={equalityType}&balance={balance}",
+                        AccountLookupResponse.class, equalityType, balance);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(3)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount).hasNoNullFieldsOrProperties())
+                        .allSatisfy(bankAccount -> assertThat(bankAccount.getBalance()).isLessThan(balance))
+                );
+    }
+
+
     private void createRandomBankAccount() {
         OpenAccountCommand openAccountCommand = OpenAccountCommand.builder()
                 .id(UUID.randomUUID())
@@ -265,5 +380,37 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
                 .untilAsserted(() -> assertThat(accountRepository.findById(existingAccountId))
                         .hasValueSatisfying(bankAccount -> assertThat(bankAccount.getAccountHolderId())
                                 .isEqualTo(existingHolderId)));
+    }
+
+    private void create3BankAccounts() {
+
+        long initialCount = accountRepository.count();
+        List<OpenAccountCommand> commands = List.of(
+                OpenAccountCommand.builder()
+                        .id(UUID.randomUUID())
+                        .accountHolderId(existingHolderId)
+                        .accountType(AccountType.CURRENT)
+                        .openingBalance(new BigDecimal("100.00"))
+                        .build(),
+                OpenAccountCommand.builder()
+                        .id(UUID.randomUUID())
+                        .accountHolderId(UUID.randomUUID().toString())
+                        .accountType(AccountType.CURRENT)
+                        .openingBalance(new BigDecimal("200.00"))
+                        .build(),
+                OpenAccountCommand.builder()
+                        .id(UUID.randomUUID())
+                        .accountHolderId(UUID.randomUUID().toString())
+                        .accountType(AccountType.CURRENT)
+                        .openingBalance(new BigDecimal("500.00"))
+                        .build()
+        );
+
+        commands.forEach(command -> commandGateway.send(command));
+
+        await()
+                .timeout(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> assertThat(accountRepository.count())
+                        .isEqualTo(initialCount + 3));
     }
 }
