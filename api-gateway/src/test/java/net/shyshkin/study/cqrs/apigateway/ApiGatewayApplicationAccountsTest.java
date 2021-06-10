@@ -39,6 +39,69 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
     }
 
     @Test
+    @Order(10)
+    void findAllAccounts_empty() {
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts")
+                .exchange()
+
+                //then
+                .expectStatus().isNoContent()
+                .expectBody()
+                .isEmpty();
+    }
+
+    @Test
+    @Order(15)
+    void findAccountById_empty() {
+
+        //given
+        UUID id = UUID.randomUUID();
+        String expectedMessage = String.format("Bank Account with id `%s` not found",id);
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts/{id}", id)
+                .exchange()
+
+                //then
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(expectedMessage);
+    }
+
+    @Test
+    @Order(20)
+    void findAccountsByHolderId_empty() {
+
+        //given
+        UUID holderId = UUID.randomUUID();
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts?accountHolderId={holderId}", holderId)
+                .exchange()
+
+                //then
+                .expectStatus().isNoContent()
+                .expectBody()
+                .isEmpty();
+    }
+
+    @Test
+    @Order(25)
+    void findAccountsByBalance_empty() {
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts?equalityType=LESS_THEN&balance=100")
+                .exchange()
+
+                //then
+                .expectStatus().isNoContent()
+                .expectBody()
+                .isEmpty();
+    }
+
+    @Test
     @Order(100)
     void openAccount_OK() {
 

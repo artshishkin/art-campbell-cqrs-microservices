@@ -41,6 +41,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                     .withExposedService("user-query-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("oauth20-server_1", 8080, Wait.forHealthcheck())
                     .withExposedService("bankaccount-cmd-api_1", 8080, Wait.forHealthcheck())
+                    .withExposedService("bankaccount-query-api_1", 8080, Wait.forHealthcheck())
             ;
         }
         return container;
@@ -91,6 +92,23 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
         log.debug("bankaccount-cmd-api: {}:{}", bankAccountCmdApiHost, bankAccountCmdApiPort);
         System.setProperty("BANKACCOUNT_CMD_API_URI", String.format("http://%s:%d", bankAccountCmdApiHost, bankAccountCmdApiPort));
 
+        setServiceUriSystemProperty("bankaccount-query-api", 8080);
+    }
+
+    private void setServiceUriSystemProperty(String serviceName, int exposedPort) {
+
+        String dockerInstanceName = serviceName + "_1";
+
+        String host = container.getServiceHost(dockerInstanceName, exposedPort);
+        Integer port = container.getServicePort(dockerInstanceName, exposedPort);
+
+        log.debug("{}: {}:{}", serviceName, host, port);
+
+        String PROPERTY_NAME = serviceName.toUpperCase()
+                .replace("-", "_")
+                .replace(".", "_");
+        PROPERTY_NAME += "_URI";
+        System.setProperty(PROPERTY_NAME, String.format("http://%s:%d", host, port));
     }
 
     @Override

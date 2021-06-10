@@ -25,7 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = {
         "app.routes.uri.user-cmd-api=${USER_CMD_API_URI}",
         "app.routes.uri.user-query-api=${USER_QUERY_API_URI}",
-        "app.routes.uri.bankaccount-cmd-api=${BANKACCOUNT_CMD_API_URI}"
+        "app.routes.uri.bankaccount-cmd-api=${BANKACCOUNT_CMD_API_URI}",
+        "app.routes.uri.bankaccount-query-api=${BANKACCOUNT_QUERY_API_URI}"
 })
 @Testcontainers
 public abstract class AbstractDockerComposeTest {
