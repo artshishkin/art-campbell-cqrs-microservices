@@ -90,11 +90,8 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
 
         //then
         log.debug("Response: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        var response = responseEntity.getBody();
-        assertThat(response)
-                .hasFieldOrPropertyWithValue("message", expectedMessage)
-        ;
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseEntity.getBody()).isNull();
     }
 
     @Test
@@ -180,7 +177,7 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
 
         //given
         String holderId = existingHolderId;
-        String expectedMessage = "Bank Accounts successfully returned";
+        String expectedMessage = "Successfully returned 1 Bank Account(s)";
 
         //when
         var responseEntity = restTemplate
@@ -268,7 +265,7 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
 
         //given
         String holderId = existingHolderId;
-        String expectedMessage = "Bank Accounts successfully returned";
+        String expectedMessage = "Successfully returned 2 Bank Account(s)";
 
         //when
         var responseEntity = restTemplate

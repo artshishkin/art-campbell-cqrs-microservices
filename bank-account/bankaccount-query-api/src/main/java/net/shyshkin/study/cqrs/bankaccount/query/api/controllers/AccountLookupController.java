@@ -43,7 +43,9 @@ public class AccountLookupController {
     @GetMapping(params = "accountHolderId")
     public AccountLookupResponse findAccountsByHolderId(@RequestParam String accountHolderId) {
         var query = new FindAccountByHolderIdQuery(accountHolderId);
-        return queryGateway.query(query, AccountLookupResponse.class).join();
+        var accountLookupResponse = queryGateway.query(query, AccountLookupResponse.class).join();
+        validateResponse(accountLookupResponse);
+        return accountLookupResponse;
     }
 
     @GetMapping(params = {"equalityType", "balance"})

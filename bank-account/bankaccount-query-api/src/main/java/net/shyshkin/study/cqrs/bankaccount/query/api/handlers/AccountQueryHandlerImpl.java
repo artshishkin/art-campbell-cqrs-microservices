@@ -54,11 +54,12 @@ public class AccountQueryHandlerImpl implements AccountQueryHandler {
         String accountHolderId = query.getAccountHolderId();
         var bankAccountList = repository
                 .findByAccountHolderId(accountHolderId);
-        if (bankAccountList == null || bankAccountList.isEmpty())
-            throw new EntityNotFoundException(String.format("Bank Account with holder id `%s` not found", accountHolderId));
+        String message = bankAccountList.isEmpty() ?
+                "No Bank Accounts found" :
+                String.format("Successfully returned %d Bank Account(s)", bankAccountList.size());
 
         return new AccountLookupResponse(
-                "Bank Accounts successfully returned",
+                message,
                 new ArrayList<>(bankAccountList));
     }
 
