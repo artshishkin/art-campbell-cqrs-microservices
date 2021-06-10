@@ -417,6 +417,28 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
                 .hasFieldOrPropertyWithValue("message", expectedMessage);
     }
 
+    @Test
+    @Order(93)
+    void findAccountById_wrongUrl() {
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/account",
+                        String.class);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .isNotEmpty()
+                .contains("timestamp",
+                        "\"status\":404",
+                        "\"error\":\"Not Found\"",
+                        "\"path\":\"/api/v1/account\""
+                );
+    }
+
     private void createRandomBankAccount() {
         OpenAccountCommand openAccountCommand = OpenAccountCommand.builder()
                 .id(UUID.randomUUID())
