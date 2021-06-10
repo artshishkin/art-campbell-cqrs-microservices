@@ -9,12 +9,16 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -229,21 +233,26 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
         String expectedMessage = "Successfully returned 1 Bank Account(s)";
 
         //when
-        webTestClient.get().uri("/api/v1/accounts")
-                .exchange()
+        await()
+                .timeout(3, TimeUnit.SECONDS)
+                .untilAsserted(() ->
+                        webTestClient.get().uri("/api/v1/accounts")
+                                .exchange()
 
-                //then
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.message").isEqualTo(expectedMessage)
-                .jsonPath("$.accounts").isArray()
-                .jsonPath("$.accounts[1]").doesNotExist()
-                .jsonPath("$.accounts[0].id").isEqualTo(existingAccountId.toString())
-                .jsonPath("$.accounts[0].accountHolderId").isEqualTo(existingHolderId.toString());
+                                //then
+                                .expectStatus().isOk()
+                                .expectBody()
+                                .consumeWith(this::logContent)
+                                .jsonPath("$.message").isEqualTo(expectedMessage)
+                                .jsonPath("$.accounts").isArray()
+                                .jsonPath("$.accounts[1]").doesNotExist()
+                                .jsonPath("$.accounts[0].id").isEqualTo(existingAccountId.toString())
+                                .jsonPath("$.accounts[0].accountHolderId").isEqualTo(existingHolderId.toString())
+                );
     }
 
     @Test
-    @Order(126)
+    @Order(127)
     void findAccountsById_presentOne() {
 
         //given
@@ -257,6 +266,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                 //then
                 .expectStatus().isOk()
                 .expectBody()
+                .consumeWith(this::logContent)
                 .jsonPath("$.message").isEqualTo(expectedMessage)
                 .jsonPath("$.accounts").isArray()
                 .jsonPath("$.accounts[1]").doesNotExist()
@@ -265,7 +275,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
     }
 
     @Test
-    @Order(126)
+    @Order(128)
     void findAccountsByHolderId_presentOne() {
 
         //given
@@ -279,6 +289,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                 //then
                 .expectStatus().isOk()
                 .expectBody()
+                .consumeWith(this::logContent)
                 .jsonPath("$.message").isEqualTo(expectedMessage)
                 .jsonPath("$.accounts").isArray()
                 .jsonPath("$.accounts[1]").doesNotExist()
@@ -287,7 +298,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
     }
 
     @Test
-    @Order(126)
+    @Order(129)
     void findAccountsByBalance_presentOne() {
 
         //given
@@ -300,6 +311,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                 //then
                 .expectStatus().isOk()
                 .expectBody()
+                .consumeWith(this::logContent)
                 .jsonPath("$.message").isEqualTo(expectedMessage)
                 .jsonPath("$.accounts").isArray()
                 .jsonPath("$.accounts[1]").doesNotExist()
@@ -369,6 +381,13 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                         .hasNoNullFieldsOrProperties()
                         .hasFieldOrPropertyWithValue("message", "The aggregate was not found in the event store")
                 );
+    }
+
+    private void logContent(EntityExchangeResult<byte[]> exchangeResult) {
+        String responseBody = null;
+        if (exchangeResult.getResponseBody() != null)
+            responseBody = new String(exchangeResult.getResponseBody(), StandardCharsets.UTF_8);
+        log.debug("Response body: {}", responseBody);
     }
 
 }
