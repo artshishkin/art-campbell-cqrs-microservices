@@ -154,8 +154,97 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
                                 .hasFieldOrPropertyWithValue("id", existingAccountId)
                                 .hasFieldOrPropertyWithValue("accountHolderId", existingHolderId)
                         )
-                )
-        ;
+                );
+    }
+
+    @Test
+    @Order(55)
+    void findAccountById_presentOne() {
+
+        //given
+        UUID id = existingAccountId;
+        String expectedMessage = "Bank Account successfully returned";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts/{id}", AccountLookupResponse.class, id);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(1)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount)
+                                .hasNoNullFieldsOrProperties()
+                                .hasFieldOrPropertyWithValue("id", existingAccountId)
+                                .hasFieldOrPropertyWithValue("accountHolderId", existingHolderId)
+                        )
+                );
+    }
+
+    @Test
+    @Order(60)
+    void findAccountByHolderId_presentOne() {
+
+        //given
+        String holderId = existingHolderId;
+        String expectedMessage = "Bank Accounts successfully returned";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts?accountHolderId={holderId}", AccountLookupResponse.class, holderId);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(1)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount)
+                                .hasNoNullFieldsOrProperties()
+                                .hasFieldOrPropertyWithValue("id", existingAccountId)
+                                .hasFieldOrPropertyWithValue("accountHolderId", existingHolderId)
+                        )
+                );
+    }
+
+    @Test
+    @Order(65)
+    void findAccountsWithBalance_presentOne() {
+
+        //given
+        EqualityType equalityType = EqualityType.GREATER_THEN;
+        BigDecimal balance = new BigDecimal("100.12");
+
+        String expectedMessage = "Successfully returned 1 Bank Account(s)";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts?equalityType={equalityType}&balance={balance}",
+                        AccountLookupResponse.class, equalityType, balance);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("message", expectedMessage)
+                .satisfies(resp -> assertThat(resp.getAccounts())
+                        .hasSize(1)
+                        .allSatisfy(bankAccount -> assertThat(bankAccount)
+                                .hasNoNullFieldsOrProperties()
+                                .hasFieldOrPropertyWithValue("id", existingAccountId)
+                                .hasFieldOrPropertyWithValue("accountHolderId", existingHolderId)
+                        )
+                );
     }
 
     private void createRandomBankAccount() {
