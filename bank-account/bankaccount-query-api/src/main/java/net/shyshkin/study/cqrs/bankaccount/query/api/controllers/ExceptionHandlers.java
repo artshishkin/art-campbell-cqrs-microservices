@@ -4,16 +4,20 @@ import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.bankaccount.query.api.exceptions.NoContentException;
 import org.axonframework.queryhandling.QueryExecutionException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -33,6 +37,26 @@ public class ExceptionHandlers {
     public BaseResponse handle(EntityNotFoundException ex) {
         logException(ex);
         return new BaseResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse handle(BindException ex) {
+        logException(ex);
+        String message = ex.getAllErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining("; "));
+        return new BaseResponse(message);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public BaseResponse handle(MethodArgumentTypeMismatchException ex) {
+        logException(ex);
+
+        String message = ex.getMessage();
+        return new BaseResponse(message);
     }
 
     @ExceptionHandler(Exception.class)

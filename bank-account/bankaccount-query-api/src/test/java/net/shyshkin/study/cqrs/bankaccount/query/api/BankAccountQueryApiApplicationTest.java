@@ -346,6 +346,77 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
     }
 
 
+    @Test
+    @Order(90)
+    void findAccountsWithBalance_bindException() {
+
+        //given
+        EqualityType equalityType = EqualityType.LESS_THEN;
+        String balance = "foo";
+
+        String expectedMessage = "Failed to convert property value of type 'java.lang.String' to required type 'java.math.BigDecimal' for property 'balance'; nested exception is java.lang.NumberFormatException: Character f is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts?equalityType={equalityType}&balance={balance}",
+                        AccountLookupResponse.class, equalityType, balance);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("message", expectedMessage);
+    }
+
+    @Test
+    @Order(91)
+    void findAccountsWithBalance_bindException_both() {
+
+        //given
+        String equalityType = "LESSER_THEN";
+        String balance = "foo";
+
+        String expectedMessage = "Failed to convert property value of type 'java.lang.String' to required type 'java.math.BigDecimal' for property 'balance'; " +
+                "nested exception is java.lang.NumberFormatException: Character f is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.; " +
+                "Failed to convert property value of type 'java.lang.String' to required type 'net.shyshkin.study.cqrs.bankaccount.query.api.queries.EqualityType' for property 'equalityType'; " +
+                "nested exception is org.springframework.core.convert.ConversionFailedException: Failed to convert from type [java.lang.String] to type [net.shyshkin.study.cqrs.bankaccount.query.api.queries.EqualityType] for value 'LESSER_THEN'; nested exception is java.lang.IllegalArgumentException: No enum constant net.shyshkin.study.cqrs.bankaccount.query.api.queries.EqualityType.LESSER_THEN";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts?equalityType={equalityType}&balance={balance}",
+                        AccountLookupResponse.class, equalityType, balance);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("message", expectedMessage);
+    }
+
+    @Test
+    @Order(92)
+    void findAccountById_methodArgumentTypeMismatchException() {
+
+        //given
+        String wrongId = "foo";
+
+        String expectedMessage = "Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; nested exception is java.lang.IllegalArgumentException: Invalid UUID string: foo";
+
+        //when
+        var responseEntity = restTemplate
+                .getForEntity("/api/v1/accounts/{id}",
+                        AccountLookupResponse.class, wrongId);
+
+        //then
+        log.debug("Response: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        var response = responseEntity.getBody();
+        assertThat(response)
+                .hasFieldOrPropertyWithValue("message", expectedMessage);
+    }
+
     private void createRandomBankAccount() {
         OpenAccountCommand openAccountCommand = OpenAccountCommand.builder()
                 .id(UUID.randomUUID())
