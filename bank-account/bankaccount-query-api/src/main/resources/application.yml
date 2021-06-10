@@ -1,6 +1,8 @@
 # spring
 server:
   port: 9092
+  error:
+    include-message: always
 spring.application.name: bank-account-query-api
 logging.level:
   net.shyshkin: debug
