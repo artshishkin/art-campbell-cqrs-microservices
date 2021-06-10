@@ -24,6 +24,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
     ApplicationContext applicationContext;
 
     private static UUID existingAccountId;
+    private static UUID existingHolderId;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +59,7 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
 
         //given
         UUID id = UUID.randomUUID();
-        String expectedMessage = String.format("Bank Account with id `%s` not found",id);
+        String expectedMessage = String.format("Bank Account with id `%s` not found", id);
 
         //when
         webTestClient.get().uri("/api/v1/accounts/{id}", id)
@@ -106,8 +107,9 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
     void openAccount_OK() {
 
         //given
+        existingHolderId = UUID.randomUUID();
         var command = OpenAccountCommand.builder()
-                .accountHolderId(UUID.randomUUID().toString())
+                .accountHolderId(existingHolderId.toString())
                 .accountType(AccountType.CURRENT)
                 .openingBalance(new BigDecimal("123.56"))
                 .build();
@@ -217,6 +219,92 @@ class ApiGatewayApplicationAccountsTest extends AbstractDockerComposeTest {
                                 .contains("Amount must be positive")
                         )
                 );
+    }
+
+    @Test
+    @Order(126)
+    void findAllAccounts_presentOne() {
+
+        //given
+        String expectedMessage = "Successfully returned 1 Bank Account(s)";
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts")
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(expectedMessage)
+                .jsonPath("$.accounts").isArray()
+                .jsonPath("$.accounts[1]").doesNotExist()
+                .jsonPath("$.accounts[0].id").isEqualTo(existingAccountId.toString())
+                .jsonPath("$.accounts[0].accountHolderId").isEqualTo(existingHolderId.toString());
+    }
+
+    @Test
+    @Order(126)
+    void findAccountsById_presentOne() {
+
+        //given
+        UUID id = existingAccountId;
+        String expectedMessage = "Bank Account successfully returned";
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts/{id}", id)
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(expectedMessage)
+                .jsonPath("$.accounts").isArray()
+                .jsonPath("$.accounts[1]").doesNotExist()
+                .jsonPath("$.accounts[0].id").isEqualTo(existingAccountId.toString())
+                .jsonPath("$.accounts[0].accountHolderId").isEqualTo(existingHolderId.toString());
+    }
+
+    @Test
+    @Order(126)
+    void findAccountsByHolderId_presentOne() {
+
+        //given
+        UUID holderId = existingHolderId;
+        String expectedMessage = "Successfully returned 1 Bank Account(s)";
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts?accountHolderId={holderId}", holderId)
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(expectedMessage)
+                .jsonPath("$.accounts").isArray()
+                .jsonPath("$.accounts[1]").doesNotExist()
+                .jsonPath("$.accounts[0].id").isEqualTo(existingAccountId.toString())
+                .jsonPath("$.accounts[0].accountHolderId").isEqualTo(existingHolderId.toString());
+    }
+
+    @Test
+    @Order(126)
+    void findAccountsByBalance_presentOne() {
+
+        //given
+        String expectedMessage = "Successfully returned 1 Bank Account(s)";
+
+        //when
+        webTestClient.get().uri("/api/v1/accounts?equalityType=LESS_THEN&balance=200")
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo(expectedMessage)
+                .jsonPath("$.accounts").isArray()
+                .jsonPath("$.accounts[1]").doesNotExist()
+                .jsonPath("$.accounts[0].id").isEqualTo(existingAccountId.toString())
+                .jsonPath("$.accounts[0].accountHolderId").isEqualTo(existingHolderId.toString());
     }
 
     @Test
