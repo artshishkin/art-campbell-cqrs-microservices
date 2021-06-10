@@ -2,6 +2,7 @@ package net.shyshkin.study.cqrs.bankaccount.query.api.controllers;
 
 import lombok.RequiredArgsConstructor;
 import net.shyshkin.study.cqrs.bankaccount.query.api.dto.AccountLookupResponse;
+import net.shyshkin.study.cqrs.bankaccount.query.api.exceptions.NoContentException;
 import net.shyshkin.study.cqrs.bankaccount.query.api.queries.FindAccountByHolderIdQuery;
 import net.shyshkin.study.cqrs.bankaccount.query.api.queries.FindAccountByIdQuery;
 import net.shyshkin.study.cqrs.bankaccount.query.api.queries.FindAccountWithBalanceQuery;
@@ -23,7 +24,14 @@ public class AccountLookupController {
     @GetMapping
     public AccountLookupResponse findAllAccounts() {
         var query = new FindAllAccountsQuery();
-        return queryGateway.query(query, AccountLookupResponse.class).join();
+        var accountLookupResponse = queryGateway.query(query, AccountLookupResponse.class).join();
+        validateResponse(accountLookupResponse);
+        return accountLookupResponse;
+    }
+
+    private void validateResponse(AccountLookupResponse response) {
+        if (response.getAccounts() == null || response.getAccounts().isEmpty())
+            throw new NoContentException();
     }
 
     @GetMapping("/{id}")
@@ -40,6 +48,8 @@ public class AccountLookupController {
 
     @GetMapping(params = {"equalityType", "balance"})
     public AccountLookupResponse findAccountsWithBalance(FindAccountWithBalanceQuery query) {
-        return queryGateway.query(query, AccountLookupResponse.class).join();
+        var accountLookupResponse = queryGateway.query(query, AccountLookupResponse.class).join();
+        validateResponse(accountLookupResponse);
+        return accountLookupResponse;
     }
 }

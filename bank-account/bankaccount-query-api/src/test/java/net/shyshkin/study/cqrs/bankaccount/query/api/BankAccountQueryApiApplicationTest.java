@@ -45,21 +45,14 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
     @Order(10)
     void findAllAccounts_empty() {
 
-        //given
-        String expectedMessage = "Bank Accounts not found";
-
         //when
         var responseEntity = restTemplate
                 .getForEntity("/api/v1/accounts", AccountLookupResponse.class);
 
         //then
         log.debug("Response: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        var response = responseEntity.getBody();
-        assertThat(response)
-                .hasNoNullFieldsOrProperties()
-                .hasFieldOrPropertyWithValue("message", expectedMessage)
-        ;
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseEntity.getBody()).isNull();
     }
 
     @Test
@@ -112,8 +105,6 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
         EqualityType equalityType = EqualityType.GREATER_THEN;
         BigDecimal balance = new BigDecimal("321.12");
 
-        String expectedMessage = "Bank Accounts not found";
-
         //when
         var responseEntity = restTemplate
                 .getForEntity("/api/v1/accounts?equalityType={equalityType}&balance={balance}",
@@ -121,12 +112,8 @@ class BankAccountQueryApiApplicationTest extends AbstractDockerComposeTest {
 
         //then
         log.debug("Response: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        var response = responseEntity.getBody();
-        assertThat(response)
-                .hasNoNullFieldsOrProperties()
-                .hasFieldOrPropertyWithValue("message", expectedMessage)
-        ;
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseEntity.getBody()).isNull();
     }
 
     @Test

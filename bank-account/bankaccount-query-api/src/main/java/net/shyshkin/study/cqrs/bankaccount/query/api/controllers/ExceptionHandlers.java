@@ -2,6 +2,7 @@ package net.shyshkin.study.cqrs.bankaccount.query.api.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.bankaccount.core.dto.BaseResponse;
+import net.shyshkin.study.cqrs.bankaccount.query.api.exceptions.NoContentException;
 import org.axonframework.queryhandling.QueryExecutionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.persistence.EntityNotFoundException;
 import java.util.concurrent.CompletionException;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -84,5 +84,11 @@ public class ExceptionHandlers {
         return ResponseEntity
                 .status(status)
                 .body(new BaseResponse(message));
+    }
+
+    @ExceptionHandler(NoContentException.class)
+    @ResponseStatus(NO_CONTENT)
+    public void handle(NoContentException ex) {
+        logException(ex);
     }
 }
