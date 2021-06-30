@@ -91,8 +91,36 @@ curl --location --request POST 'http://localhost:8080/auth/realms/katarinazart/p
     -  "family_name": "Shyshkin",
     -  "email": "d.art.shishkin@gmail.com"
 
-                
-        
+####  15.3 Request Access Token - Authorization Code grant_type 
 
-
- 
+-  Use Browser to Get URI
+    -  `http://localhost:8080/auth/realms/katarinazart/protocol/openid-connect/auth?response_type=code&client_id=springbankClient&scope=openid%20profile&state=jskd879sdkj&redirect_uri=http://localhost:8091/callback`
+-  Will redirect to Keycloak login page
+    -  enter username and password    
+-  Will redirect to `http://localhost:8091/callback`    
+    -  `http://localhost:8091/callback?state=jskd879sdkj&session_state=8c297d0e-2fa5-4725-8fae-139b067f8344&code=30f2783e-3f02-4a78-aa84-ddc5bf570389.8c297d0e-2fa5-4725-8fae-139b067f8344.d372983f-ba31-4ea7-852c-61aedd659529`         
+-  Copy code and make POST request 
+```shell script
+ curl --location --request POST 'http://localhost:8080/auth/realms/katarinazart/protocol/openid-connect/token' \
+ --header 'Content-Type: application/x-www-form-urlencoded' \
+ --header 'Cookie: AUTH_SESSION_ID_LEGACY=fbdf5450-d269-4f8d-b0e5-3ff3972c492f.e36f563cf8d0' \
+ --data-urlencode 'grant_type=authorization_code' \
+ --data-urlencode 'client_id=springbankClient' \
+ --data-urlencode 'client_secret=674ae476-7591-4078-82e9-5eaea5e71cff' \
+ --data-urlencode 'code=30f2783e-3f02-4a78-aa84-ddc5bf570389.8c297d0e-2fa5-4725-8fae-139b067f8344.d372983f-ba31-4ea7-852c-61aedd659529' \
+ --data-urlencode 'redirect_uri=http://localhost:8091/callback'
+```
+-  Will receive response
+```json
+{
+    "access_token": "eyJh...ofbA",
+    "expires_in": 300,
+    "refresh_expires_in": 1800,
+    "refresh_token": "eyJh...V_9fY",
+    "token_type": "Bearer",
+    "id_token": "eyJh...y5rw",
+    "not-before-policy": 0,
+    "session_state": "8c297d0e-2fa5-4725-8fae-139b067f8344",
+    "scope": "openid profile email"
+}
+```
