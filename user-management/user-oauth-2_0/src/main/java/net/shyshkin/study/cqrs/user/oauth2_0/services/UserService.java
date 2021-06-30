@@ -19,7 +19,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = repository
-                .finaByUsername(username)
+                .findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Incorrect Username or Password supplied!"));
         Account account = user.getAccount();
 
