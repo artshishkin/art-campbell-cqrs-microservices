@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Disabled("Only for manual tests -> Start `docker-compose` first")
+@Disabled("Only for manual tests -> Start `infrastructure` and `auth-server` docker-compose files first")
+@ActiveProfiles("local")
 class RegisterUserControllerManualTest {
 
     private static final Faker FAKER = Faker.instance(new Locale("en-GB"));
@@ -34,7 +36,7 @@ class RegisterUserControllerManualTest {
     TestRestTemplate restTemplate;
 
     // go to postman and get token for existing user, i.e. username = `shyshkin.art`, password = `P@ssW0rd!`
-    String jwtAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjI4MTY4NDEsInVzZXJfbmFtZSI6InNoeXNoa2luLmFydCIsImF1dGhvcml0aWVzIjpbIldSSVRFX1BSSVZJTEVHRSJdLCJqdGkiOiI5NFZHa2E4YUZxSlFKU25pNlYwSGNBc3RpM1UiLCJjbGllbnRfaWQiOiJzcHJpbmdiYW5rQ2xpZW50Iiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl19.rvTagfG5KNah7wZccifbRA3g-mq8JbtgNx2z3D1eL1w";
+    String jwtAccessToken = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJpemlDNVhVY1h0X1pSQmdhT0p6OFRSVGpEYm56bGZaTlh3V254UmNNbEkwIn0.eyJleHAiOjE2MjUwNTI0ODUsImlhdCI6MTYyNTA1MjE4NSwianRpIjoiNmY1NDIyYzQtOTY2OS00NDVjLWIyNjEtNTVhMDBkNzk1NTliIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2F1dGgvcmVhbG1zL2thdGFyaW5hemFydCIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJlOWQ0YTVlZS00ZDgyLTQ4MDctOGMyMi02MWQ4MGZiNGYyODEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzcHJpbmdiYW5rQ2xpZW50Iiwic2Vzc2lvbl9zdGF0ZSI6IjUxYTBkM2ZkLTU1MGUtNDBlMC1hMjUyLWY3MGQ5NDZhMjVhYiIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1rYXRhcmluYXphcnQiLCJSRUFEX1BSSVZJTEVHRSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iLCJXUklURV9QUklWSUxFR0UiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJuYW1lIjoiQXJ0IFNoeXNoa2luIiwicHJlZmVycmVkX3VzZXJuYW1lIjoic2h5c2hraW4uYXJ0IiwiZ2l2ZW5fbmFtZSI6IkFydCIsImZhbWlseV9uYW1lIjoiU2h5c2hraW4iLCJlbWFpbCI6ImQuYXJ0LnNoaXNoa2luQGdtYWlsLmNvbSJ9.b4NeiXSpIqyysEXBvo4AunZCtX66LxmIOAwldg7RiKg5WIuGKWUmAyRQou7-LwOcWy58ZoDlD5vqwTZqBiXHWNZ4UEfdetmQoTPLYAgWLvSyfXi9UiReFkaCvrMQylLtjZbVnREySJ6ONXQGv-hc5W_HxvJTVGavbdbZk8unoWpEjtqPTK41Ib-Hg5vBYP3L-qV9at8akINGASAQnOjG0x7bISA1NCrJH-0RsWtLHp66B5II9r9-9hzoWRb4psCyaU-_mSHjK5LmYnJ_S3xnz6n5MbjgSj_rTyAawqH0QP4InzFljV8Nj8uHLarGlltxhaYMtbxkvW1kRW12iFpv2Q";
 
     @Test
     void registerUser_valid() {
