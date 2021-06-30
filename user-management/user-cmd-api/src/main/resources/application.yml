@@ -1,0 +1,23 @@
+# spring
+server.port: 8091
+spring.application.name: user-command-api
+logging.level:
+  net.shyshkin: debug
+
+# mongodb
+spring.data.mongodb:
+  host: localhost
+  port: 27017
+  database: user_db
+
+# security
+app.oauth.uri: http://keycloak:8080
+spring.security.oauth2.resourceserver.jwt.issuer-uri: ${app.oauth.uri}/auth/realms/katarinazart
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+app.oauth.uri: http://localhost:8080
