@@ -1,5 +1,6 @@
 package net.shyshkin.study.cqrs.user.cmd.api.config;
 
+import net.shyshkin.study.cqrs.user.core.converters.KeycloakAuthorityConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;

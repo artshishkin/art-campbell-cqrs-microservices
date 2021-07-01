@@ -1,4 +1,4 @@
-package net.shyshkin.study.cqrs.user.cmd.api.config;
+package net.shyshkin.study.cqrs.user.core.converters;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
