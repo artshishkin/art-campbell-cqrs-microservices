@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -120,6 +122,7 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
         var responseEntity = restTemplate.getForEntity("/api/v1/users", UserLookupResponse.class);
 
         //then
+        log.debug("Response entity: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().getUsers())
                 .hasSize((int) usersCount)
@@ -183,9 +186,17 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
         var newUser = createNewUser();
 
         //when
-        var responseEntity = userCmdApiRestTemplate.postForEntity("/", newUser, RegisterUserResponse.class);
+        ResponseEntity<RegisterUserResponse> responseEntity = null;
+        try {
+            responseEntity = userCmdApiRestTemplate.postForEntity("/", newUser, RegisterUserResponse.class);
+        } catch (HttpClientErrorException exception) {
+            log.debug("Response headers: {}", exception.getResponseHeaders());
+            exception.printStackTrace();
+            assertThat(exception.getMessage()).isEqualTo("There was unexpected exception so test failed");
+        }
 
         //then
+        log.debug("Response entity: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         RegisterUserResponse body = responseEntity.getBody();
         assertThat(body.getMessage()).isEqualTo("User registered successfully");

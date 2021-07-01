@@ -30,8 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = {
         "axon.axonserver.servers=${AXON_SERVERS}",
         "spring.data.mongodb.host=${MONGODB_HOST}",
-        "spring.data.mongodb.port=${MONGODB_PORT}"
-
+        "spring.data.mongodb.port=${MONGODB_PORT}",
+        "app.oauth.uri=${OAUTH_URI}"
 })
 @Testcontainers
 public abstract class AbstractDockerComposeTest {
@@ -58,7 +58,7 @@ public abstract class AbstractDockerComposeTest {
     protected RestTemplate oauthServerRestTemplate;
 
     private static final String CLIENT_ID = "springbankClient";
-    private static final String CLIENT_SECRET = "springbankSecret";
+    private static final String CLIENT_SECRET = "674ae476-7591-4078-82e9-5eaea5e71cff";
 
     protected String getJwtAccessToken(String username, String plainPassword) {
         oauthServerRestTemplate = restTemplateBuilder
@@ -75,11 +75,12 @@ public abstract class AbstractDockerComposeTest {
 
         map.add("username", username);
         map.add("password", plainPassword);
+        map.add("scope", "openid profile");
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
 
         var responseEntity = oauthServerRestTemplate
-                .postForEntity("/oauth/token", requestEntity, OAuthResponse.class);
+                .postForEntity("/auth/realms/katarinazart/protocol/openid-connect/token", requestEntity, OAuthResponse.class);
 
         //then
         log.debug("Response from OAuth2.0 server: {}", responseEntity);

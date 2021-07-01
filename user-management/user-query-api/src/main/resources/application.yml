@@ -1,0 +1,26 @@
+# spring
+server.port: 8092
+spring.application.name: user-query-api
+logging.level.net.shyshkin: debug
+
+# mongodb
+spring.data.mongodb:
+  host: mongo
+  port: 27017
+  database: user_db
+
+# security
+app.oauth.uri: http://oauth20-server:8080
+spring.security.oauth2.resourceserver.jwt:
+#  issuer-uri: ${app.oauth.uri}/auth/realms/katarinazart
+  jwk-set-uri: ${app.oauth.uri}/auth/realms/katarinazart/protocol/openid-connect/certs
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+app.oauth.uri: http://localhost:8080
+spring.data.mongodb:
+  host: localhost
