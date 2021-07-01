@@ -2305,8 +2305,8 @@
   "clientProfiles" : { },
   "clientPolicies" : { },
   "users" : [ {
-    "id" : "72a97f00-ee4d-45c0-92bc-aa9cea4ecebb",
-    "createdTimestamp" : 1625047937575,
+    "id" : "403c564d-69bf-4523-a29b-27228e8ed57f",
+    "createdTimestamp" : 1625063631604,
     "username" : "shyshkina.kate",
     "enabled" : true,
     "totp" : false,
@@ -2315,14 +2315,14 @@
     "lastName" : "Shyshkina",
     "email" : "kate.shishkina@gmail.com",
     "credentials" : [ {
-      "id" : "3c3ff107-5345-482e-8596-9cf3c9d59514",
+      "id" : "55c453d1-7524-48e6-b4c6-fd96639fb26c",
       "type" : "password",
-      "createdDate" : 1625047960709,
-      "secretData" : "{\"value\":\"R2NUYVspho8Gg9yO4dP34t7ltMht/njUQyd7Lufy+j79xvi04tqlEvstVyk4b5Wcl/3lvU/dezduK2k1obnFsQ==\",\"salt\":\"SyzJ5O4iRHzdudQ6ecTSYA==\",\"additionalParameters\":{}}",
+      "createdDate" : 1625063648583,
+      "secretData" : "{\"value\":\"HqSeZDgZDdvhdUpJRwaSGh/lEkLO7fg7s0yOSry2DncOX31dgAH1/S5+WQjgOhtRWGPaBoshRhZ7r7T5tQoyEg==\",\"salt\":\"9RORtjp4EsAxc6Wb6tuEtg==\",\"additionalParameters\":{}}",
       "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
     } ],
     "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ "UPDATE_PASSWORD" ],
+    "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-katarinazart", "READ_PRIVILEGE" ],
     "notBefore" : 0,
     "groups" : [ ]

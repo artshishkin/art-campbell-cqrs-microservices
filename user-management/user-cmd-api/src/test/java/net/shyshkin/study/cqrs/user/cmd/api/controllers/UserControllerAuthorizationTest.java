@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.RequestEntity;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -51,9 +53,14 @@ class UserControllerAuthorizationTest extends AbstractDockerComposeTest {
         log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
         var registerUserResponse = responseEntity.getBody();
-        assertThat(registerUserResponse)
-                .isNotNull()
-                .contains("{\"error\":\"access_denied\",\"error_description\":\"");
+        assertThat(registerUserResponse).isBlank();
+        List<String> wwwAuthenticateList = responseEntity.getHeaders().get("WWW-Authenticate");
+        assertThat(wwwAuthenticateList).hasSize(1);
+        String wwwAuthenticate = wwwAuthenticateList.get(0);
+        assertThat(wwwAuthenticate).contains(
+                "Bearer error=\"insufficient_scope\"",
+                "error_description=\"The request requires higher privileges than provided by the access token.\""
+        );
     }
 
     @Test
@@ -72,9 +79,11 @@ class UserControllerAuthorizationTest extends AbstractDockerComposeTest {
         log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
         var registerUserResponse = responseEntity.getBody();
-        assertThat(registerUserResponse)
-                .isNotNull()
-                .contains("{\"error\":\"unauthorized\",\"error_description\":\"Full authentication is required to access this resource\"}");
+        assertThat(registerUserResponse).isBlank();
+        List<String> wwwAuthenticateList = responseEntity.getHeaders().get("WWW-Authenticate");
+        assertThat(wwwAuthenticateList).hasSize(1);
+        String wwwAuthenticate = wwwAuthenticateList.get(0);
+        assertThat(wwwAuthenticate).contains("Bearer");
     }
 
     @Test
@@ -93,9 +102,14 @@ class UserControllerAuthorizationTest extends AbstractDockerComposeTest {
         log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
         var registerUserResponse = responseEntity.getBody();
-        assertThat(registerUserResponse)
-                .isNotNull()
-                .contains("{\"error\":\"invalid_token\",\"error_description\":\"Cannot convert access token to JSON\"}");
+        assertThat(registerUserResponse).isBlank();
+        List<String> wwwAuthenticateList = responseEntity.getHeaders().get("WWW-Authenticate");
+        assertThat(wwwAuthenticateList).hasSize(1);
+        String wwwAuthenticate = wwwAuthenticateList.get(0);
+        assertThat(wwwAuthenticate).contains(
+                "Bearer error=\"invalid_token\"",
+                "error_description=\"An error occurred while attempting to decode the Jwt: Invalid JWT serialization: Missing dot delimiter(s)\""
+        );
     }
 
     @Test
@@ -118,9 +132,14 @@ class UserControllerAuthorizationTest extends AbstractDockerComposeTest {
         log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
         var registerUserResponse = responseEntity.getBody();
-        assertThat(registerUserResponse)
-                .isNotNull()
-                .contains("{\"error\":\"access_denied\",\"error_description\":\"");
+        assertThat(registerUserResponse).isBlank();
+        List<String> wwwAuthenticateList = responseEntity.getHeaders().get("WWW-Authenticate");
+        assertThat(wwwAuthenticateList).hasSize(1);
+        String wwwAuthenticate = wwwAuthenticateList.get(0);
+        assertThat(wwwAuthenticate).contains(
+                "Bearer error=\"insufficient_scope\"",
+                "error_description=\"The request requires higher privileges than provided by the access token.\""
+        );
     }
 
     @Test
@@ -143,9 +162,11 @@ class UserControllerAuthorizationTest extends AbstractDockerComposeTest {
         log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
         var registerUserResponse = responseEntity.getBody();
-        assertThat(registerUserResponse)
-                .isNotNull()
-                .contains("{\"error\":\"unauthorized\",\"error_description\":\"Full authentication is required to access this resource\"}");
+        assertThat(registerUserResponse).isBlank();
+        List<String> wwwAuthenticateList = responseEntity.getHeaders().get("WWW-Authenticate");
+        assertThat(wwwAuthenticateList).hasSize(1);
+        String wwwAuthenticate = wwwAuthenticateList.get(0);
+        assertThat(wwwAuthenticate).contains("Bearer");
     }
 
     @Test
@@ -166,9 +187,14 @@ class UserControllerAuthorizationTest extends AbstractDockerComposeTest {
         log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(FORBIDDEN);
         var registerUserResponse = responseEntity.getBody();
-        assertThat(registerUserResponse)
-                .isNotNull()
-                .contains("{\"error\":\"access_denied\",\"error_description\":\"");
+        assertThat(registerUserResponse).isBlank();
+        List<String> wwwAuthenticateList = responseEntity.getHeaders().get("WWW-Authenticate");
+        assertThat(wwwAuthenticateList).hasSize(1);
+        String wwwAuthenticate = wwwAuthenticateList.get(0);
+        assertThat(wwwAuthenticate).contains(
+                "Bearer error=\"insufficient_scope\"",
+                "error_description=\"The request requires higher privileges than provided by the access token.\""
+        );
     }
 
     @Test
@@ -189,9 +215,11 @@ class UserControllerAuthorizationTest extends AbstractDockerComposeTest {
         log.debug("Response: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(UNAUTHORIZED);
         var registerUserResponse = responseEntity.getBody();
-        assertThat(registerUserResponse)
-                .isNotNull()
-                .contains("{\"error\":\"unauthorized\",\"error_description\":\"Full authentication is required to access this resource\"}");
+        assertThat(registerUserResponse).isBlank();
+        List<String> wwwAuthenticateList = responseEntity.getHeaders().get("WWW-Authenticate");
+        assertThat(wwwAuthenticateList).hasSize(1);
+        String wwwAuthenticate = wwwAuthenticateList.get(0);
+        assertThat(wwwAuthenticate).contains("Bearer");
     }
 
     private User getRandomUser() {
