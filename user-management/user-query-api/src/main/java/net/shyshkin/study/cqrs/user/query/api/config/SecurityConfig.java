@@ -26,6 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
                 .antMatchers("/actuator/health").permitAll()
+                .antMatchers("/api/v1/users/provider/email/**")
+                .access("hasIpAddress('192.168.0.0/16') or hasIpAddress('127.0.0.1')")
+//                .permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable();

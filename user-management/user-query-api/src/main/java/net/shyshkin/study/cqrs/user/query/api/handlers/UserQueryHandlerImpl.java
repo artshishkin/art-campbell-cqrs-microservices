@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
+import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
 import net.shyshkin.study.cqrs.user.query.api.exceptions.UserNotFoundException;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindAllUsersQuery;
+import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByEmailQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByIdQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.SearchUsersQuery;
 import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
@@ -35,6 +37,16 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
                 .map(List::of)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id `" + query.getId() + "`"));
         return new UserLookupResponse(users);
+    }
+
+    @QueryHandler
+    @Override
+    public UserProviderResponse getUserByEmail(FindUserByEmailQuery query) {
+        List<User> users = repository
+                .findByEmailAddress(query.getEmail())
+                .map(List::of)
+                .orElseThrow(() -> new UserNotFoundException("User not found by email `" + query.getEmail() + "`"));
+        return new UserProviderResponse(users);
     }
 
     @QueryHandler

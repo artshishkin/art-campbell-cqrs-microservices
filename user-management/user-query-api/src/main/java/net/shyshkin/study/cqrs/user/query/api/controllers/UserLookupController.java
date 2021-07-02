@@ -2,21 +2,17 @@ package net.shyshkin.study.cqrs.user.query.api.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.cqrs.user.core.dto.BaseResponse;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindAllUsersQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByIdQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.SearchUsersQuery;
-import org.axonframework.queryhandling.QueryExecutionException;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.concurrent.CompletionException;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -51,28 +47,5 @@ public class UserLookupController {
         if (lookupResponse.getUsers() == null || lookupResponse.getUsers().isEmpty())
             return ResponseEntity.noContent().build();
         return ResponseEntity.ok(lookupResponse);
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(INTERNAL_SERVER_ERROR)
-    public BaseResponse handle(Exception ex) {
-        log.debug("Exception happened: {}:{}",
-                ex.getClass().getName(),
-                ex.getMessage()
-        );
-        return new BaseResponse(ex.getMessage());
-    }
-
-    @ExceptionHandler(CompletionException.class)
-    public ResponseEntity<BaseResponse> handle(CompletionException ex) {
-        log.debug("Exception happened: {}:{}",
-                ex.getClass().getName(),
-                ex.getMessage()
-        );
-        if (ex.getCause() != null && ex.getCause() instanceof QueryExecutionException && ex.getCause().getMessage().contains("User not found")) {
-            return ResponseEntity.status(NOT_FOUND).body(new BaseResponse(ex.getCause().getMessage()));
-        }
-
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new BaseResponse(ex.getMessage()));
     }
 }

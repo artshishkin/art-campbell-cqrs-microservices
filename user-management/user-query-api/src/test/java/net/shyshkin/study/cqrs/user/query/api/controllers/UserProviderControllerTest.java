@@ -9,12 +9,9 @@ import net.shyshkin.study.cqrs.user.core.dto.UserCreateDto;
 import net.shyshkin.study.cqrs.user.core.models.Role;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import net.shyshkin.study.cqrs.user.query.api.commontest.AbstractDockerComposeTest;
-import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
+import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
 import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
@@ -24,18 +21,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @Slf4j
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
-class UserLookupControllerTest extends AbstractDockerComposeTest {
+class UserProviderControllerTest extends AbstractDockerComposeTest {
 
     RestTemplate userCmdApiRestTemplate;
 
@@ -67,26 +60,26 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
 
         restTemplate = new TestRestTemplate(restTemplateBuilder
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtReadAccessToken)
-                .rootUri("http://localhost:" + randomServerPort));
+                .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
     }
 
     @Test
-    @Order(50)
-    void getUserById_present() {
+    @Order(10)
+    void getUserByEmail_createNew_withToken() {
 
         //given
         User newUser = registerNewUser();
-        String userId = newUser.getId();
+        String emailAddress = newUser.getEmailAddress();
 
         //when
-        var responseEntity = restTemplate.getForEntity("/api/v1/users/{id}", UserLookupResponse.class, userId);
+        var responseEntity = restTemplate.getForEntity("/email/{email}", UserProviderResponse.class, emailAddress);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().getUsers())
                 .hasSize(1)
                 .allSatisfy(user -> assertThat(user)
-                        .hasFieldOrPropertyWithValue("id", userId)
+                        .hasFieldOrPropertyWithValue("emailAddress", emailAddress)
                         .isEqualToIgnoringGivenFields(newUser, "id", "account"))
                 .allSatisfy(user -> assertThat(user.getAccount())
                         .isEqualToIgnoringGivenFields(newUser.getAccount(), "password")
@@ -94,14 +87,40 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
     }
 
     @Test
-    @Order(52)
-    void getUserById_absent() {
+    @Order(20)
+    void getUserByEmail_createNew_withoutToken() {
 
         //given
-        String userId = UUID.randomUUID().toString();
+        User newUser = registerNewUser();
+        String emailAddress = newUser.getEmailAddress();
+
+        restTemplate = new TestRestTemplate(restTemplateBuilder
+                .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
 
         //when
-        var responseEntity = restTemplate.getForEntity("/api/v1/users/{id}", BaseResponse.class, userId);
+        var responseEntity = restTemplate.getForEntity("/email/{email}", UserProviderResponse.class, emailAddress);
+
+        //then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getUsers())
+                .hasSize(1)
+                .allSatisfy(user -> assertThat(user)
+                        .hasFieldOrPropertyWithValue("emailAddress", emailAddress)
+                        .isEqualToIgnoringGivenFields(newUser, "id", "account"))
+                .allSatisfy(user -> assertThat(user.getAccount())
+                        .isEqualToIgnoringGivenFields(newUser.getAccount(), "password")
+                        .satisfies(account -> assertThat(account.getPassword()).startsWith("{bcrypt}")));
+    }
+
+    @Test
+    @Order(30)
+    void getUserByEmail_absent() {
+
+        //given
+        String email = "absent@test.com";
+
+        //when
+        var responseEntity = restTemplate.getForEntity("/email/{email}", BaseResponse.class, email);
 
         //then
         log.debug("Response entity: {}", responseEntity);
@@ -110,75 +129,6 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
                 .contains("User not found");
     }
 
-    @Test
-    @Order(60)
-    void getAllUsers() {
-
-        //given
-        User newUser = registerNewUser();
-        long usersCount = repository.count();
-
-        //when
-        var responseEntity = restTemplate.getForEntity("/api/v1/users", UserLookupResponse.class);
-
-        //then
-        log.debug("Response entity: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().getUsers())
-                .hasSize((int) usersCount)
-                .allSatisfy(user -> assertThat(user)
-                        .hasNoNullFieldsOrProperties()
-                        .hasFieldOrProperty("id"))
-                .allSatisfy(user -> assertThat(user.getAccount())
-                        .satisfies(account -> assertThat(account.getPassword()).startsWith("{bcrypt}")))
-                .allSatisfy(user -> log.debug("User retrieved by Http Request: {}", user));
-    }
-
-    private static Stream<Arguments> searchTest() {
-        return Stream.of(
-                arguments("firstname", (Function<User, String>) User::getFirstname),
-                arguments("lastname", (Function<User, String>) User::getLastname),
-                arguments("emailAddress", (Function<User, String>) User::getEmailAddress),
-                arguments("account.username", (Function<User, String>) user -> user.getAccount().getUsername())
-        );
-    }
-
-    @ParameterizedTest(name = "[{index}] {0}")
-    @MethodSource
-    @DisplayName("Searching for phrase that can be met in:")
-    void searchTest(String fieldSearch, Function<User, String> filterFunc) {
-
-        //given
-        if (existingUser == null)
-            registerNewUser();
-        String fieldValue = filterFunc.apply(existingUser);
-        String filter = fieldValue.substring(1, fieldValue.length() - 1);
-        log.debug("Searching for `{}` that can be met in `{}`", filter, fieldSearch);
-
-        //when
-        var responseEntity = restTemplate.getForEntity("/api/v1/users/search/{filter}", UserLookupResponse.class, filter);
-
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().getUsers())
-                .hasSizeGreaterThanOrEqualTo(1)
-                .allSatisfy(user -> assertThat(user.getFirstname() + user.getLastname() + user.getEmailAddress() + user.getAccount().getUsername()).contains(filter))
-                .allSatisfy(user -> log.debug("Search user: {}", user));
-    }
-
-    @Test
-    void searchTest_absent() {
-
-        //given
-        String filter = UUID.randomUUID().toString();
-
-        //when
-        var responseEntity = restTemplate.getForEntity("/api/v1/users/search/{filter}", BaseResponse.class, filter);
-
-        //then
-        log.debug("Response Entity: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
 
     User registerNewUser() {
 
@@ -225,7 +175,7 @@ class UserLookupControllerTest extends AbstractDockerComposeTest {
 
     private UserCreateDto createNewUser() {
         var accountDto = AccountDto.builder()
-                .username(FAKER.name().username() + "_username")
+                .username(FAKER.name().username())
                 .password(generatePassword())
                 .roles(List.of(Role.READ_PRIVILEGE))
                 .build();
