@@ -1,0 +1,153 @@
+version: '3'
+
+services:
+
+  axon-server:
+    image: axoniq/axonserver
+    ports:
+      - 8024:8024
+    volumes:
+      - axon-data:/data
+      - axon-eventdata:/eventdata
+      - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\project_complete\config:/config
+
+  mongo:
+    image: mongo
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    ports:
+      - 8081:8081
+
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+      MYSQL_USER: art_user
+      MYSQL_PASSWORD: art_password
+      MYSQL_DATABASE: bank_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 20s
+      retries: 10
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+
+  user-cmd-api:
+    image: artarkatesoft/cqrs-user-cmd-api
+    environment:
+      "spring.data.mongodb.host": mongo
+      "axon.axonserver.servers": axon-server
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  user-query-api:
+    image: artarkatesoft/cqrs-user-query-api
+    environment:
+      "spring.data.mongodb.host": mongo
+      "axon.axonserver.servers": axon-server
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  postgres:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  oauth20-server:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    volumes:
+      - ./export:/tmp/export
+      - ./../../user-management/user-storage-provider/target/remote-user-storage-provider.jar:/opt/jboss/keycloak/standalone/deployments/remote-user-storage-provider.jar
+    command:
+      - "-b 0.0.0.0"
+      - "-Dkeycloak.migration.action=export"
+      - "-Dkeycloak.migration.provider=singleFile"
+      - "-Dkeycloak.migration.file=/tmp/export/realm-export.json"
+
+#  bankaccount-cmd-api:
+#    image: artarkatesoft/cqrs-bankaccount-cmd-api
+#    environment:
+#      "spring.data.mongodb.host": mongo
+#      "axon.axonserver.servers": axon-server
+#    depends_on:
+#      mongo:
+#        condition: service_healthy
+#
+#  bankaccount-query-api:
+#    image: artarkatesoft/cqrs-bankaccount-query-api
+#    environment:
+#      "spring.data.mongodb.host": mongo
+#      "axon.axonserver.servers": axon-server
+#      "spring.datasource.url": jdbc:mysql://mysql:3306/bank_db
+#    restart: on-failure:5
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#      mongo:
+#        condition: service_healthy
+#
+  api-gateway:
+    image: artarkatesoft/cqrs-api-gateway
+    ports:
+      - 2000:8080
+    restart: on-failure:5
+    depends_on:
+      user-cmd-api:
+        condition: service_healthy
+      user-query-api:
+        condition: service_healthy
+#      bankaccount-cmd-api:
+#        condition: service_healthy
+#      bankaccount-query-api:
+#        condition: service_healthy
+#      oauth20-server:
+#        condition: service_healthy
+
+
+volumes:
+  axon-data:
+  axon-eventdata:
+  mongo-data:
+  mysql-data:
+  postgres_data:
+    driver: local
+
+
+
+
