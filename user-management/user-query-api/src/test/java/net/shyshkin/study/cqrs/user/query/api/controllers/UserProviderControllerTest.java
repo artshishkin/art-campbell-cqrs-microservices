@@ -369,6 +369,124 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
         }
     }
 
+    @Nested
+    @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
+    class VerifyByUsernameAndPasswordTests {
+
+        @Test
+        @Order(10)
+        void verifyUsernamePassword_createNew_withToken() {
+
+            //given
+            User newUser = registerNewUser();
+            String username = newUser.getAccount().getUsername();
+            String password = lastRawPassword.get();
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/username/{username}/verify-password", password, VerificationPasswordResponse.class, username);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", true);
+        }
+
+        @Test
+        @Order(20)
+        void verifyUsernamePassword_createNew_withoutToken() {
+
+            //given
+            User newUser = registerNewUser();
+            String username = newUser.getAccount().getUsername();
+            String password = lastRawPassword.get();
+
+            restTemplate = new TestRestTemplate(restTemplateBuilder
+                    .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/username/{username}/verify-password", password, VerificationPasswordResponse.class, username);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", true);
+        }
+
+        @Test
+        @Order(30)
+        void verifyUsernamePassword_wrongPassword() {
+
+            //given
+            User newUser = registerNewUser();
+            String username = newUser.getAccount().getUsername();
+            String password = "s0me_Fake_P@s5w0rd";
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/username/{username}/verify-password", password, VerificationPasswordResponse.class, username);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", false);
+        }
+
+        @Test
+        @Order(40)
+        void verifyUsernamePassword_absent() {
+
+            //given
+            String username = "absent.user";
+            String password = lastRawPassword.get();
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/username/{username}/verify-password", password, VerificationPasswordResponse.class, username);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", false);
+        }
+
+        @ParameterizedTest
+        @Order(40)
+        @CsvSource({
+                "hi",
+                "TOO_LONG_!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        })
+        void verifyUsernamePassword_validationFail(String username) {
+
+            //given
+            String password = lastRawPassword.get();
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/username/{username}/verify-password", password, BaseResponse.class, username);
+
+            //then
+            log.debug("Response entity: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody())
+                    .isNotNull()
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrProperty("message")
+                    .satisfies(response -> assertThat(response.getMessage())
+                            .contains(".username", "Username must be from 3 to 255 characters long"));
+        }
+    }
+
     User registerNewUser() {
 
         //given

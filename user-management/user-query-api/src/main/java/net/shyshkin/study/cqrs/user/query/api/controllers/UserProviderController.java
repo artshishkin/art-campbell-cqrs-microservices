@@ -56,4 +56,15 @@ public class UserProviderController {
             return ResponseEntity.noContent().build();
         return ResponseEntity.ok(userProviderResponse);
     }
+
+    @PostMapping("/username/{username}/verify-password")
+    public VerificationPasswordResponse verifyUserByUsernameAndPassword(
+            @PathVariable @NotNull @Size(min = 3, max = 255, message = "Username must be from 3 to 255 characters long") String username,
+            @RequestBody String password) {
+        log.debug("verifyUserByUsernameAndPassword(@PathVariable(\"username\") {}, @RequestBody {})", username, password);
+
+        var query = new VerifyUsernamePasswordQuery(username, password);
+
+        return queryGateway.query(query, VerificationPasswordResponse.class).join();
+    }
 }

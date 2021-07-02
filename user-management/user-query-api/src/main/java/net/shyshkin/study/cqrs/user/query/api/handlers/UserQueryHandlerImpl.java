@@ -90,6 +90,17 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
 
     @QueryHandler
     @Override
+    public VerificationPasswordResponse verifyUsernameAndPassword(VerifyUsernamePasswordQuery query) {
+        Boolean passwordValid = repository
+                .findUserByUsername(query.getUsername())
+                .map(user -> passwordEncoder.matches(query.getPassword(), user.getAccount().getPassword()))
+                .orElse(false);
+
+        return new VerificationPasswordResponse(passwordValid);
+    }
+
+    @QueryHandler
+    @Override
     public UserLookupResponse searchUsers(SearchUsersQuery query) {
         List<User> users = repository.findByFilterRegex(query.getFilter());
         return new UserLookupResponse(users);

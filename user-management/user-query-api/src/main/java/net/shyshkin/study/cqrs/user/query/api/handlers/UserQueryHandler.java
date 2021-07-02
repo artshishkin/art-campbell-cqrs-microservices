@@ -17,6 +17,8 @@ public interface UserQueryHandler {
 
     UserProviderResponse getUserByUsername(FindUserByUsernameQuery query);
 
+    VerificationPasswordResponse verifyUsernameAndPassword(VerifyUsernamePasswordQuery query);
+
     UserLookupResponse searchUsers(SearchUsersQuery query);
 
 }
