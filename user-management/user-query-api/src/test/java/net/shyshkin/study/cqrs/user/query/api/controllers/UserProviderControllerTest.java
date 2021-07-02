@@ -10,6 +10,7 @@ import net.shyshkin.study.cqrs.user.core.models.Role;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import net.shyshkin.study.cqrs.user.query.api.commontest.AbstractDockerComposeTest;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
+import net.shyshkin.study.cqrs.user.query.api.dto.VerificationPasswordResponse;
 import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -45,6 +47,8 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
     static User existingUser = null;
 
     private static String jwtReadAccessToken = null;
+
+    private static final AtomicReference<String> lastRawPassword = new AtomicReference<>("");
 
     @BeforeEach
     void setUp() {
@@ -158,6 +162,119 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
     }
 
     @Nested
+    @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
+    class VerifyByEmailAndPasswordTests {
+
+        @Test
+        @Order(10)
+        void verifyEmailPassword_createNew_withToken() {
+
+            //given
+            User newUser = registerNewUser();
+            String emailAddress = newUser.getEmailAddress();
+            String password = lastRawPassword.get();
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/email/{email}/verify-password", password, VerificationPasswordResponse.class, emailAddress);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", true);
+        }
+
+        @Test
+        @Order(20)
+        void verifyEmailPassword_createNew_withoutToken() {
+
+            //given
+            User newUser = registerNewUser();
+            String emailAddress = newUser.getEmailAddress();
+            String password = lastRawPassword.get();
+
+            restTemplate = new TestRestTemplate(restTemplateBuilder
+                    .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/email/{email}/verify-password", password, VerificationPasswordResponse.class, emailAddress);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", true);
+        }
+
+        @Test
+        @Order(30)
+        void verifyEmailPassword_wrongPassword() {
+
+            //given
+            User newUser = registerNewUser();
+            String emailAddress = newUser.getEmailAddress();
+            String password = "s0me_Fake_P@s5w0rd";
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/email/{email}/verify-password", password, VerificationPasswordResponse.class, emailAddress);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", false);
+        }
+
+        @Test
+        @Order(40)
+        void verifyEmailPassword_absent() {
+
+            //given
+            String email = "absent@test.com";
+            String password = lastRawPassword.get();
+            printTestStartBorder();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/email/{email}/verify-password", password, VerificationPasswordResponse.class, email);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("valid", false);
+        }
+
+        @Test
+        @Order(50)
+        void verifyEmailPassword_validationFail() {
+
+            //given
+            String email = "not_an_email_pattern_AT_test.com";
+            String password = lastRawPassword.get();
+
+            //when
+            var responseEntity = restTemplate
+                    .postForEntity("/email/{email}/verify-password", password, BaseResponse.class, email);
+
+            //then
+            log.debug("Response entity: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody())
+                    .isNotNull()
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrProperty("message")
+                    .satisfies(response -> assertThat(response.getMessage()).contains(".email", "Provide correct email address"));
+        }
+    }
+
+    @Nested
     class FindByUsernameTests {
 
         @Test
@@ -256,6 +373,7 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
 
         //given
         var newUser = createNewUser();
+        lastRawPassword.set(newUser.getAccount().getPassword());
 
         //when
         ResponseEntity<RegisterUserResponse> responseEntity = null;

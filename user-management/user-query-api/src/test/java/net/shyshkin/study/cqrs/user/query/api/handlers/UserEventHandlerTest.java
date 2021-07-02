@@ -157,7 +157,7 @@ class UserEventHandlerTest extends AbstractDockerComposeTest {
         assertThat(body.getMessage()).isEqualTo("User removed successfully");
 
         await()
-                .timeout(2, TimeUnit.SECONDS)
+                .timeout(3, TimeUnit.SECONDS)
                 .untilAsserted(() -> assertThat(repository.existsById(userId)).isFalse());
     }
 

@@ -6,12 +6,14 @@ import net.shyshkin.study.cqrs.user.core.models.Account;
 import net.shyshkin.study.cqrs.user.core.models.User;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
+import net.shyshkin.study.cqrs.user.query.api.dto.VerificationPasswordResponse;
 import net.shyshkin.study.cqrs.user.query.api.exceptions.UserNotFoundException;
 import net.shyshkin.study.cqrs.user.query.api.mappers.UserMapper;
 import net.shyshkin.study.cqrs.user.query.api.queries.*;
 import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.data.domain.Example;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +25,7 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
 
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     @QueryHandler
     @Override
@@ -47,6 +50,17 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
                 .findByEmailAddress(query.getEmail())
                 .map(mapper::toProviderResponse)
                 .orElse(null);
+    }
+
+    @QueryHandler
+    @Override
+    public VerificationPasswordResponse verifyEmailAndPassword(VerifyEmailPasswordQuery query) {
+        Boolean passwordValid = repository
+                .findByEmailAddress(query.getEmail())
+                .map(user -> passwordEncoder.matches(query.getPassword(), user.getAccount().getPassword()))
+                .orElse(false);
+
+        return new VerificationPasswordResponse(passwordValid);
     }
 
     @QueryHandler

@@ -3,15 +3,15 @@ package net.shyshkin.study.cqrs.user.query.api.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
+import net.shyshkin.study.cqrs.user.query.api.dto.VerificationPasswordResponse;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByEmailQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByUsernameQuery;
+import net.shyshkin.study.cqrs.user.query.api.queries.VerifyEmailPasswordQuery;
+import net.shyshkin.study.cqrs.user.query.api.queries.VerifyUsernamePasswordQuery;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -34,6 +34,17 @@ public class UserProviderController {
         if (userProviderResponse == null)
             return ResponseEntity.noContent().build();
         return ResponseEntity.ok(userProviderResponse);
+    }
+
+    @PostMapping("/email/{email}/verify-password")
+    public VerificationPasswordResponse verifyUserByEmailAndPassword(
+            @PathVariable("email") @Email(message = "Provide correct email address") String email,
+            @RequestBody String password) {
+        log.debug("verifyUserByEmailAndPassword(@PathVariable(\"email\") {}, @RequestBody {})", email, password);
+
+        var query = new VerifyEmailPasswordQuery(email, password);
+
+        return queryGateway.query(query, VerificationPasswordResponse.class).join();
     }
 
     @GetMapping("/username/{username}")
