@@ -2,10 +2,7 @@ package net.shyshkin.study.cqrs.user.query.api.handlers;
 
 import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
-import net.shyshkin.study.cqrs.user.query.api.queries.FindAllUsersQuery;
-import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByEmailQuery;
-import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByIdQuery;
-import net.shyshkin.study.cqrs.user.query.api.queries.SearchUsersQuery;
+import net.shyshkin.study.cqrs.user.query.api.queries.*;
 
 public interface UserQueryHandler {
 
@@ -14,6 +11,8 @@ public interface UserQueryHandler {
     UserLookupResponse getUserById(FindUserByIdQuery query);
 
     UserProviderResponse getUserByEmail(FindUserByEmailQuery query);
+
+    UserProviderResponse getUserByUsername(FindUserByUsernameQuery query);
 
     UserLookupResponse searchUsers(SearchUsersQuery query);
 

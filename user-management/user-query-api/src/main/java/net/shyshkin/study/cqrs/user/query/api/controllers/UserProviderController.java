@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByEmailQuery;
+import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByUsernameQuery;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Slf4j
 @RestController
@@ -33,4 +36,13 @@ public class UserProviderController {
         return ResponseEntity.ok(userProviderResponse);
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UserProviderResponse> getUserByUsername(
+            @PathVariable @NotNull @Size(min = 3, max = 255, message = "Username must be from 3 to 255 characters long") String username) {
+        var query = new FindUserByUsernameQuery(username);
+        UserProviderResponse userProviderResponse = queryGateway.query(query, UserProviderResponse.class).join();
+        if (userProviderResponse == null)
+            return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(userProviderResponse);
+    }
 }

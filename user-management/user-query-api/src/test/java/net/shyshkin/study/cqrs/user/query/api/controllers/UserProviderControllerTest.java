@@ -12,6 +12,8 @@ import net.shyshkin.study.cqrs.user.query.api.commontest.AbstractDockerComposeTe
 import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
 import net.shyshkin.study.cqrs.user.query.api.repositories.UserRepository;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
@@ -67,89 +69,181 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
                 .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
     }
 
-    @Test
-    @Order(10)
-    void getUserByEmail_createNew_withToken() {
+    @Nested
+    class FindByEmailTests {
 
-        //given
-        User newUser = registerNewUser();
-        String emailAddress = newUser.getEmailAddress();
+        @Test
+        @Order(10)
+        void getUserByEmail_createNew_withToken() {
 
-        //when
-        var responseEntity = restTemplate.getForEntity("/email/{email}", UserProviderResponse.class, emailAddress);
+            //given
+            User newUser = registerNewUser();
+            String emailAddress = newUser.getEmailAddress();
 
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody())
-                .hasNoNullFieldsOrProperties()
-                .hasFieldOrPropertyWithValue("email", emailAddress)
-                .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
-                .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
-                .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
-                .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
+            //when
+            var responseEntity = restTemplate.getForEntity("/email/{email}", UserProviderResponse.class, emailAddress);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("email", emailAddress)
+                    .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
+                    .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
+                    .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
+                    .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
+        }
+
+        @Test
+        @Order(20)
+        void getUserByEmail_createNew_withoutToken() {
+
+            //given
+            User newUser = registerNewUser();
+            String emailAddress = newUser.getEmailAddress();
+
+            restTemplate = new TestRestTemplate(restTemplateBuilder
+                    .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
+
+            //when
+            var responseEntity = restTemplate.getForEntity("/email/{email}", UserProviderResponse.class, emailAddress);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("email", emailAddress)
+                    .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
+                    .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
+                    .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
+                    .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
+        }
+
+        @Test
+        @Order(30)
+        void getUserByEmail_absent() {
+
+            //given
+            String email = "absent@test.com";
+
+            //when
+            var responseEntity = restTemplate.getForEntity("/email/{email}", BaseResponse.class, email);
+
+            //then
+            log.debug("Response entity: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(responseEntity.getBody()).isNull();
+        }
+
+        @Test
+        @Order(40)
+        void getUserByEmail_validationFail() {
+
+            //given
+            String email = "not_an_email_pattern_AT_test.com";
+
+            //when
+            var responseEntity = restTemplate.getForEntity("/email/{email}", BaseResponse.class, email);
+
+            //then
+            log.debug("Response entity: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody())
+                    .isNotNull()
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrProperty("message")
+                    .satisfies(response -> assertThat(response.getMessage()).contains("getUserByEmail.email", "Provide correct email address"));
+        }
     }
 
-    @Test
-    @Order(20)
-    void getUserByEmail_createNew_withoutToken() {
+    @Nested
+    class FindByUsernameTests {
 
-        //given
-        User newUser = registerNewUser();
-        String emailAddress = newUser.getEmailAddress();
+        @Test
+        @Order(10)
+        void getUserByUsername_createNew_withToken() {
 
-        restTemplate = new TestRestTemplate(restTemplateBuilder
-                .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
+            //given
+            User newUser = registerNewUser();
+            String username = newUser.getAccount().getUsername();
 
-        //when
-        var responseEntity = restTemplate.getForEntity("/email/{email}", UserProviderResponse.class, emailAddress);
+            //when
+            var responseEntity = restTemplate.getForEntity("/username/{username}", UserProviderResponse.class, username);
 
-        //then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody())
-                .hasNoNullFieldsOrProperties()
-                .hasFieldOrPropertyWithValue("email", emailAddress)
-                .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
-                .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
-                .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
-                .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("email", newUser.getEmailAddress())
+                    .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
+                    .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
+                    .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
+                    .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
+        }
+
+        @Test
+        @Order(20)
+        void getUserByUsername_createNew_withoutToken() {
+
+            //given
+            User newUser = registerNewUser();
+            String username = newUser.getAccount().getUsername();
+
+            restTemplate = new TestRestTemplate(restTemplateBuilder
+                    .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
+
+            //when
+            var responseEntity = restTemplate.getForEntity("/username/{username}", UserProviderResponse.class, username);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody())
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrPropertyWithValue("email", newUser.getEmailAddress())
+                    .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
+                    .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
+                    .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
+                    .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
+        }
+
+        @Test
+        @Order(30)
+        void getUserByUsername_absent() {
+
+            //given
+            String username = "absent.user";
+
+            //when
+            var responseEntity = restTemplate.getForEntity("/username/{username}", BaseResponse.class, username);
+
+            //then
+            log.debug("Response entity: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(responseEntity.getBody()).isNull();
+        }
+
+        @ParameterizedTest
+        @Order(40)
+        @CsvSource({
+                "hi",
+                "TOO_LONG_!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        })
+        void getUserByUsername_validationFail(String username) {
+
+            //when
+            var responseEntity = restTemplate.getForEntity("/username/{username}", BaseResponse.class, username);
+
+            //then
+            log.debug("Response entity: {}", responseEntity);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody())
+                    .isNotNull()
+                    .hasNoNullFieldsOrProperties()
+                    .hasFieldOrProperty("message")
+                    .satisfies(response -> assertThat(response.getMessage())
+                            .contains("getUserByUsername.username", "Username must be from 3 to 255 characters long"));
+        }
     }
-
-    @Test
-    @Order(30)
-    void getUserByEmail_absent() {
-
-        //given
-        String email = "absent@test.com";
-
-        //when
-        var responseEntity = restTemplate.getForEntity("/email/{email}", BaseResponse.class, email);
-
-        //then
-        log.debug("Response entity: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(responseEntity.getBody()).isNull();
-    }
-
-    @Test
-    @Order(40)
-    void getUserByEmail_validationFail() {
-
-        //given
-        String email = "not_an_email_pattern_AT_test.com";
-
-        //when
-        var responseEntity = restTemplate.getForEntity("/email/{email}", BaseResponse.class, email);
-
-        //then
-        log.debug("Response entity: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody())
-                .isNotNull()
-                .hasNoNullFieldsOrProperties()
-                .hasFieldOrProperty("message")
-                .satisfies(response -> assertThat(response.getMessage()).contains("getUserByEmail.email", "Provide correct email address"));
-    }
-
 
     User registerNewUser() {
 
