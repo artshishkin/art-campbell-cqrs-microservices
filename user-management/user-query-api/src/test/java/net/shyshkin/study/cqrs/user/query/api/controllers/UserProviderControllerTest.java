@@ -76,14 +76,13 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().getUsers())
-                .hasSize(1)
-                .allSatisfy(user -> assertThat(user)
-                        .hasFieldOrPropertyWithValue("emailAddress", emailAddress)
-                        .isEqualToIgnoringGivenFields(newUser, "id", "account"))
-                .allSatisfy(user -> assertThat(user.getAccount())
-                        .isEqualToIgnoringGivenFields(newUser.getAccount(), "password")
-                        .satisfies(account -> assertThat(account.getPassword()).startsWith("{bcrypt}")));
+        assertThat(responseEntity.getBody())
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("email", emailAddress)
+                .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
+                .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
+                .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
+                .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
     }
 
     @Test
@@ -102,14 +101,13 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().getUsers())
-                .hasSize(1)
-                .allSatisfy(user -> assertThat(user)
-                        .hasFieldOrPropertyWithValue("emailAddress", emailAddress)
-                        .isEqualToIgnoringGivenFields(newUser, "id", "account"))
-                .allSatisfy(user -> assertThat(user.getAccount())
-                        .isEqualToIgnoringGivenFields(newUser.getAccount(), "password")
-                        .satisfies(account -> assertThat(account.getPassword()).startsWith("{bcrypt}")));
+        assertThat(responseEntity.getBody())
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("email", emailAddress)
+                .hasFieldOrPropertyWithValue("username", newUser.getAccount().getUsername())
+                .hasFieldOrPropertyWithValue("roles", newUser.getAccount().getRoles())
+                .hasFieldOrPropertyWithValue("firstname", newUser.getFirstname())
+                .hasFieldOrPropertyWithValue("lastname", newUser.getLastname());
     }
 
     @Test
@@ -124,9 +122,8 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
 
         //then
         log.debug("Response entity: {}", responseEntity);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(responseEntity.getBody().getMessage())
-                .contains("User not found");
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(responseEntity.getBody()).isNull();
     }
 
 

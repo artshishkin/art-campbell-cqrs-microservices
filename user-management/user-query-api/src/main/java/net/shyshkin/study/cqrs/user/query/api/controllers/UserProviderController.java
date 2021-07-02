@@ -25,7 +25,7 @@ public class UserProviderController {
     public ResponseEntity<UserProviderResponse> getUserByEmail(@Email @PathVariable String email) {
         var query = new FindUserByEmailQuery(email);
         UserProviderResponse userProviderResponse = queryGateway.query(query, UserProviderResponse.class).join();
-        if (userProviderResponse.getUsers() == null || userProviderResponse.getUsers().isEmpty())
+        if (userProviderResponse == null)
             return ResponseEntity.noContent().build();
         return ResponseEntity.ok(userProviderResponse);
     }

@@ -6,6 +6,7 @@ import net.shyshkin.study.cqrs.user.core.models.User;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserLookupResponse;
 import net.shyshkin.study.cqrs.user.query.api.dto.UserProviderResponse;
 import net.shyshkin.study.cqrs.user.query.api.exceptions.UserNotFoundException;
+import net.shyshkin.study.cqrs.user.query.api.mappers.UserMapper;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindAllUsersQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByEmailQuery;
 import net.shyshkin.study.cqrs.user.query.api.queries.FindUserByIdQuery;
@@ -22,6 +23,7 @@ import java.util.List;
 public class UserQueryHandlerImpl implements UserQueryHandler {
 
     private final UserRepository repository;
+    private final UserMapper mapper;
 
     @QueryHandler
     @Override
@@ -42,11 +44,10 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
     @QueryHandler
     @Override
     public UserProviderResponse getUserByEmail(FindUserByEmailQuery query) {
-        List<User> users = repository
+        return repository
                 .findByEmailAddress(query.getEmail())
-                .map(List::of)
-                .orElseThrow(() -> new UserNotFoundException("User not found by email `" + query.getEmail() + "`"));
-        return new UserProviderResponse(users);
+                .map(mapper::toProviderResponse)
+                .orElse(null);
     }
 
     @QueryHandler
