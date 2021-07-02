@@ -32,7 +32,8 @@ import static org.awaitility.Awaitility.await;
 @Slf4j
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 @TestPropertySource(properties = {
-        "logging.level.org.springframework.web.servlet.DispatcherServlet=debug"
+        "logging.level.org.springframework.web.servlet.DispatcherServlet=debug",
+        "logging.level.org.springframework.data.mongodb.core.MongoTemplate=debug"
 })
 class UserProviderControllerTest extends AbstractDockerComposeTest {
 
@@ -166,6 +167,7 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
             //given
             User newUser = registerNewUser();
             String username = newUser.getAccount().getUsername();
+            printTestStartBorder();
 
             //when
             var responseEntity = restTemplate.getForEntity("/username/{username}", UserProviderResponse.class, username);
@@ -191,6 +193,7 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
 
             restTemplate = new TestRestTemplate(restTemplateBuilder
                     .rootUri("http://localhost:" + randomServerPort + "/api/v1/users/provider"));
+            printTestStartBorder();
 
             //when
             var responseEntity = restTemplate.getForEntity("/username/{username}", UserProviderResponse.class, username);
@@ -212,6 +215,7 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
 
             //given
             String username = "absent.user";
+            printTestStartBorder();
 
             //when
             var responseEntity = restTemplate.getForEntity("/username/{username}", BaseResponse.class, username);
@@ -229,6 +233,9 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
                 "TOO_LONG_!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         })
         void getUserByUsername_validationFail(String username) {
+
+            //given
+            printTestStartBorder();
 
             //when
             var responseEntity = restTemplate.getForEntity("/username/{username}", BaseResponse.class, username);
@@ -317,5 +324,11 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
             super(message);
             this.id = id;
         }
+    }
+
+    private void printTestStartBorder() {
+        System.out.println("                                                         ");
+        System.out.println("----------------------TEST STARTING----------------------");
+        System.out.println("                                                         ");
     }
 }

@@ -53,7 +53,8 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
     @Override
     public UserProviderResponse getUserByUsername(FindUserByUsernameQuery query) {
 
-        return findUserByUsernameUsingExample(query);
+//        return findUserByUsernameUsingExample(query);
+        return findUserByUsernameUsingQuery(query);
     }
 
     private UserProviderResponse findUserByUsernameUsingExample(FindUserByUsernameQuery query) {
@@ -62,6 +63,13 @@ public class UserQueryHandlerImpl implements UserQueryHandler {
         User userExample = User.builder().account(accountExample).build();
 
         return repository.findOne(Example.of(userExample))
+                .map(mapper::toProviderResponse)
+                .orElse(null);
+    }
+
+    private UserProviderResponse findUserByUsernameUsingQuery(FindUserByUsernameQuery query) {
+        String username = query.getUsername();
+        return repository.findUserByUsername(username)
                 .map(mapper::toProviderResponse)
                 .orElse(null);
     }
