@@ -17,6 +17,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,6 +29,9 @@ import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
+@TestPropertySource(properties = {
+        "logging.level.org.springframework.web.servlet.DispatcherServlet=debug"
+})
 class UserProviderControllerTest extends AbstractDockerComposeTest {
 
     RestTemplate userCmdApiRestTemplate;
@@ -124,6 +128,26 @@ class UserProviderControllerTest extends AbstractDockerComposeTest {
         log.debug("Response entity: {}", responseEntity);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(responseEntity.getBody()).isNull();
+    }
+
+    @Test
+    @Order(40)
+    void getUserByEmail_validationFail() {
+
+        //given
+        String email = "not_an_email_pattern_AT_test.com";
+
+        //when
+        var responseEntity = restTemplate.getForEntity("/email/{email}", BaseResponse.class, email);
+
+        //then
+        log.debug("Response entity: {}", responseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody())
+                .isNotNull()
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrProperty("message")
+                .satisfies(response -> assertThat(response.getMessage()).contains("getUserByEmail.email", "Provide correct email address"));
     }
 
 
