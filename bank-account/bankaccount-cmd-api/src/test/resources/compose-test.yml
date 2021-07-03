@@ -8,10 +8,43 @@ services:
   mongo:
     image: mongo
 
-  oauth20-server:
-    image: artarkatesoft/cqrs-user-oauth-2_0
+  user-query-api:
+    image: artarkatesoft/cqrs-user-query-api
+    restart: always
+    depends_on:
+      - axon-server
+
+  postgres:
+    image: postgres
     environment:
-      "spring.data.mongodb.host": mongo
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  oauth20-server:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+    depends_on:
+      - postgres
+    volumes:
+      - ./../../../../../docker-compose/project_complete/export:/tmp/export
+      - ./../../../../../user-management/user-storage-provider/target/remote-user-storage-provider.jar:/opt/jboss/keycloak/standalone/deployments/remote-user-storage-provider.jar
+    command:
+      - "-b 0.0.0.0"
+      - "-Dkeycloak.migration.action=import"
+      - "-Dkeycloak.migration.provider=singleFile"
+      - "-Dkeycloak.migration.file=/tmp/export/realm-export.json"
+      - "-Dkeycloak.migration.strategy=IGNORE_EXISTING"
+
+
 
 
 
