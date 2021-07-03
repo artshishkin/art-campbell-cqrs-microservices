@@ -26,12 +26,16 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
     public static TestComposeContainer getInstance() {
         if (container == null) {
             container = new TestComposeContainer()
+                    .withLocalCompose(true)
+                    .withTailChildContainers(true)
                     .withExposedService("axon-server_1", 8124,
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .withExposedService("mongo_1", 27017)
-                    .withExposedService("oauth20-server_1", 8080, Wait.forHealthcheck())
+                    .withExposedService("oauth20-server_1", 8080,
+                            Wait.forLogMessage(".*Admin console listening on.*\\n", 1))
                     .withExposedService("mysql_1", 3306,
                             Wait.forLogMessage(".*/usr/sbin/mysqld: ready for connections. Version.*\\n", 1))
+                    .waitingFor("user-query-api_1", Wait.forHealthcheck())
             ;
         }
         return container;
@@ -61,7 +65,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
 
         oauthHost = container.getServiceHost("oauth20-server_1", 8080);
         oauthPort = container.getServicePort("oauth20-server_1", 8080);
-
+        System.setProperty("OAUTH_URI", String.format("http://%s:%d", oauthHost, oauthPort));
         log.debug("oauth20-server: {}:{}", oauthHost, oauthPort);
 
         String mysqlHost = container.getServiceHost("mysql_1", 3306);

@@ -2,7 +2,7 @@ package net.shyshkin.study.cqrs.bankaccount.query.api.commontest;
 
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
-import net.shyshkin.study.cqrs.bankaccount.query.api.dto.OAuthResponse;
+import net.shyshkin.study.cqrs.bankaccount.core.dto.OAuthResponse;
 import net.shyshkin.study.cqrs.bankaccount.query.api.testcontainers.TestComposeContainer;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         "axon.axonserver.servers=${AXON_SERVERS}",
         "spring.data.mongodb.host=${MONGODB_HOST}",
         "spring.data.mongodb.port=${MONGODB_PORT}",
-        "spring.datasource.url=jdbc:mysql://${MYSQL_URI}/bank_db"
+        "spring.datasource.url=jdbc:mysql://${MYSQL_URI}/bank_db",
+        "app.oauth.uri=${OAUTH_URI}"
 })
 @Testcontainers
 public abstract class AbstractDockerComposeTest {
@@ -53,7 +54,7 @@ public abstract class AbstractDockerComposeTest {
     protected static String jwtAccessToken;
 
     protected static String clientId = "springbankClient";
-    protected static String clientSecret = "springbankSecret";
+    protected static String clientSecret = "674ae476-7591-4078-82e9-5eaea5e71cff";
 
     @LocalServerPort
     protected int randomServerPort;
@@ -75,11 +76,12 @@ public abstract class AbstractDockerComposeTest {
 
         map.add("username", username);
         map.add("password", plainPassword);
+        map.add("scope", "openid profile");
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
 
         var responseEntity = oauthServerRestTemplate
-                .postForEntity("/oauth/token", requestEntity, OAuthResponse.class);
+                .postForEntity("/auth/realms/katarinazart/protocol/openid-connect/token", requestEntity, OAuthResponse.class);
 
         //then
         log.debug("Response from OAuth2.0 server: {}", responseEntity);

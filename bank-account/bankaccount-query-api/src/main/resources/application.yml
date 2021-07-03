@@ -9,14 +9,17 @@ logging.level:
 
 # mongodb
 spring.data.mongodb:
-  host: localhost
+  host: mongo
   port: 27017
   database: bank_account_db
+
+#axon
+axon.axonserver.servers: axon-server
 
 # mysql
 spring:
   datasource:
-    url: jdbc:mysql://localhost:23306/bank_db
+    url: jdbc:mysql://mysql:3306/bank_db
     username: art_user
     password: art_password
   jpa:
@@ -27,4 +30,26 @@ spring:
 
 
 # security
-security.oauth2.resource.jwt.key-value: springbankSigningKey
+app.oauth.uri: http://oauth20-server:8080
+#spring.security.oauth2.resourceserver.jwt.issuer-uri: ${app.oauth.uri}/auth/realms/katarinazart
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri: ${app.oauth.uri}/auth/realms/katarinazart/protocol/openid-connect/certs
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+app.oauth.uri: http://localhost:8080
+
+#mongodb
+spring.data.mongodb:
+  host: localhost
+
+#axon
+axon.axonserver.servers: localhost
+
+# mysql
+spring.datasource:
+    url: jdbc:mysql://localhost:23306/bank_db
+
