@@ -9,6 +9,9 @@ spring.data.mongodb:
   port: 27017
   database: user_db
 
+#axon
+axon.axonserver.servers: axon-server
+
 # security
 app.oauth.uri: http://oauth20-server:8080
 spring.security.oauth2.resourceserver.jwt:
@@ -22,5 +25,10 @@ spring:
       on-profile: local
 
 app.oauth.uri: http://localhost:8080
+
+#mongodb
 spring.data.mongodb:
   host: localhost
+
+#axon
+axon.axonserver.servers: localhost

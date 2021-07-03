@@ -15,6 +15,12 @@ services:
       - axon-server
       - oauth20-server
 
+  user-query-api:
+    image: artarkatesoft/cqrs-user-query-api
+    restart: always
+    depends_on:
+      - axon-server
+
   postgres:
     image: postgres
     environment:
@@ -36,7 +42,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./../../../../../docker-compose/auth-server/export:/tmp/export
+      - ./../../../../../docker-compose/project_complete/export:/tmp/export
+      - ./../../../../user-storage-provider/target/remote-user-storage-provider.jar:/opt/jboss/keycloak/standalone/deployments/remote-user-storage-provider.jar
     command:
       - "-b 0.0.0.0"
       - "-Dkeycloak.migration.action=import"

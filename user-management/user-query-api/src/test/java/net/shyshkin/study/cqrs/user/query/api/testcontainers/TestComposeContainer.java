@@ -36,6 +36,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                     .withExposedService("user-cmd-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("oauth20-server_1", 8080,
                             Wait.forLogMessage(".*Admin console listening on.*\\n", 1))
+                    .waitingFor("user-query-api_1", Wait.forHealthcheck())
             ;
         }
         return container;
