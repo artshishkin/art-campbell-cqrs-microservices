@@ -17,8 +17,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
@@ -50,40 +52,38 @@ class ApiGatewayApplicationUsersTest extends AbstractDockerComposeTest {
     void getAllUsers_unauthorized() {
 
         //when
-        EntityExchangeResult<byte[]> entityExchangeResult = webTestClient.get().uri("/api/v1/users")
+        webTestClient.get().uri("/api/v1/users")
                 .header(AUTHORIZATION, "")
                 .exchange()
 
                 //then
                 .expectStatus().isUnauthorized()
                 .expectBody()
-                .jsonPath("$.error").isEqualTo("unauthorized")
-                .jsonPath("$.error_description").isEqualTo("Full authentication is required to access this resource")
-                .returnResult();
-
-        byte[] responseBody = entityExchangeResult.getResponseBody();
-        String body = new String(responseBody, StandardCharsets.UTF_8);
-        log.debug("Response body: {}", body);
+                .isEmpty();
     }
 
     @Test
     @Order(72)
     void getAllUsers_ok() {
+        await()
+                .timeout(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
 
-        //when
-        EntityExchangeResult<byte[]> entityExchangeResult = webTestClient.get().uri("/api/v1/users")
-                .exchange()
+                    //when
+                    EntityExchangeResult<byte[]> entityExchangeResult = webTestClient.get().uri("/api/v1/users")
+                            .exchange()
 
-                //then
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.users[0].account.username").value(username -> assertThat((String) username).contains("shyshkin"))
-                .jsonPath("$.users[1].account.username").value(username -> assertThat((String) username).contains("shyshkin"))
-                .returnResult();
+                            //then
+                            .expectStatus().isOk()
+                            .expectBody()
+                            .jsonPath("$.users[0].account.username").isNotEmpty()
+                            .jsonPath("$.users[1].account.username").isNotEmpty()
+                            .returnResult();
 
-        byte[] responseBody = entityExchangeResult.getResponseBody();
-        String body = new String(responseBody, StandardCharsets.UTF_8);
-        log.debug("Response body: {}", body);
+                    byte[] responseBody = entityExchangeResult.getResponseBody();
+                    String body = new String(responseBody, StandardCharsets.UTF_8);
+                    log.debug("Response body: {}", body);
+                });
     }
 
     @Test
@@ -98,16 +98,17 @@ class ApiGatewayApplicationUsersTest extends AbstractDockerComposeTest {
                 .expectStatus().isOk()
                 .expectBody(UserLookupResponse.class)
                 .value(userLookupResponse -> assertThat(userLookupResponse)
-                        .satisfies(body -> log.debug("Response body: {}", body))
-                        .hasNoNullFieldsOrProperties()
-                        .satisfies(response -> assertThat(response.getUsers())
-                                .hasSizeGreaterThanOrEqualTo(2)
-                                .allSatisfy(user -> assertThat(user)
-                                        .hasNoNullFieldsOrProperties()
-                                        .satisfies(u -> existingUser = u)
-                                        .satisfies(u -> assertThat(u.getAccount())
+                                .satisfies(body -> log.debug("Response body: {}", body))
+                                .hasNoNullFieldsOrProperties()
+                                .satisfies(response -> assertThat(response.getUsers())
+                                        .hasSizeGreaterThanOrEqualTo(2)
+                                        .allSatisfy(user -> assertThat(user)
                                                 .hasNoNullFieldsOrProperties()
-                                                .satisfies(account -> assertThat(account.getUsername()).contains("shyshkin")))))
+                                                .satisfies(u -> existingUser = u)
+                                                .satisfies(u -> assertThat(u.getAccount())
+                                                                .hasNoNullFieldsOrProperties()
+//                                                .satisfies(account -> assertThat(account.getUsername()).contains("shyshkin"))
+                                                )))
                 );
     }
 
@@ -143,7 +144,8 @@ class ApiGatewayApplicationUsersTest extends AbstractDockerComposeTest {
     void searchUser() {
 
         //given
-        String filter = "ate";
+        String existUsername = userDto.getAccount().getUsername();
+        String filter = existUsername.substring(1, existUsername.length() - 1);
 
         //when
         webTestClient.get().uri("/api/v1/users/search/{filter}", filter)
@@ -159,15 +161,15 @@ class ApiGatewayApplicationUsersTest extends AbstractDockerComposeTest {
                                 .hasSize(1)
                                 .allSatisfy(user -> assertThat(user)
                                         .hasNoNullFieldsOrProperties()
-                                        .hasFieldOrPropertyWithValue("emailAddress", "kate.shishkina@gmail.com")
+                                        .hasFieldOrPropertyWithValue("emailAddress", userDto.getEmailAddress())
                                         .satisfies(u -> assertThat(u.getAccount())
                                                 .hasNoNullFieldsOrProperties()
-                                                .hasFieldOrPropertyWithValue("username", "shyshkina.kate"))))
+                                                .hasFieldOrPropertyWithValue("username", existUsername))))
                 );
     }
 
-    @Test
-    @Order(86)
+    @RepeatedTest(2)
+    @Order(20)
     void registerUser() {
 
         //given

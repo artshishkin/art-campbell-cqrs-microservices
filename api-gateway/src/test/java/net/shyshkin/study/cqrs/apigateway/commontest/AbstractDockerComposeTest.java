@@ -6,7 +6,10 @@ import net.shyshkin.study.cqrs.apigateway.dto.OAuthResponse;
 import net.shyshkin.study.cqrs.apigateway.testcontainers.TestComposeContainer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,7 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         "app.routes.uri.user-cmd-api=${USER_CMD_API_URI}",
         "app.routes.uri.user-query-api=${USER_QUERY_API_URI}",
         "app.routes.uri.bankaccount-cmd-api=${BANKACCOUNT_CMD_API_URI}",
-        "app.routes.uri.bankaccount-query-api=${BANKACCOUNT_QUERY_API_URI}"
+        "app.routes.uri.bankaccount-query-api=${BANKACCOUNT_QUERY_API_URI}",
+        "app.routes.uri.oauth20-server=${OAUTH_URI}"
 })
 @Testcontainers
 public abstract class AbstractDockerComposeTest {
@@ -46,14 +50,14 @@ public abstract class AbstractDockerComposeTest {
     protected WebClient oauthServerWebClient;
 
     private static final String CLIENT_ID = "springbankClient";
-    private static final String CLIENT_SECRET = "springbankSecret";
+    private static final String CLIENT_SECRET = "674ae476-7591-4078-82e9-5eaea5e71cff";
 
     protected String getJwtAccessToken(String username, String plainPassword) {
 
         oauthServerWebClient = WebClient
                 .builder()
                 .defaultHeaders(headers -> headers.setBasicAuth(CLIENT_ID, CLIENT_SECRET))
-                .baseUrl(String.format("http://%s:%d", composeContainer.getOauthHost(), composeContainer.getOauthPort()))
+                .baseUrl(String.format("http://%s:%d", "localhost", randomServerPort))
                 .build();
 
 
@@ -66,12 +70,11 @@ public abstract class AbstractDockerComposeTest {
 
         map.add("username", username);
         map.add("password", plainPassword);
-
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
+        map.add("scope", "openid profile");
 
         ResponseEntity<OAuthResponse> responseEntity = oauthServerWebClient
                 .post()
-                .uri("/oauth/token")
+                .uri("/auth/realms/katarinazart/protocol/openid-connect/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(map))
                 .retrieve()

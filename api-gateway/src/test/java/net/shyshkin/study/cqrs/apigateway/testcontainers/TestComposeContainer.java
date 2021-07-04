@@ -26,12 +26,15 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
     public static TestComposeContainer getInstance() {
         if (container == null) {
             container = new TestComposeContainer()
+                    .withLocalCompose(true)
+                    .withTailChildContainers(true)
                     .waitingFor("axon-server_1",
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .waitingFor("mongo_1", Wait.forHealthcheck())
                     .withExposedService("user-cmd-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("user-query-api_1", 8080, Wait.forHealthcheck())
-                    .withExposedService("oauth20-server_1", 8080, Wait.forHealthcheck())
+                    .withExposedService("oauth20-server_1", 8080,
+                            Wait.forLogMessage(".*Admin console listening on.*\\n", 1))
                     .withExposedService("bankaccount-cmd-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("bankaccount-query-api_1", 8080, Wait.forHealthcheck())
                     .waitingFor("mysql_1", Wait.forHealthcheck())
@@ -49,7 +52,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
 
         oauthHost = container.getServiceHost("oauth20-server_1", 8080);
         oauthPort = container.getServicePort("oauth20-server_1", 8080);
-
+        System.setProperty("OAUTH_URI", String.format("http://%s:%d", oauthHost, oauthPort));
         log.debug("oauth20-server: {}:{}", oauthHost, oauthPort);
 
         setServiceUriSystemProperty("user-cmd-api", 8080);

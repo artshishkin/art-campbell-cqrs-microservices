@@ -16,26 +16,19 @@ services:
 
   user-cmd-api:
     image: artarkatesoft/cqrs-user-cmd-api
-    environment:
-      "spring.data.mongodb.host": mongo
-      "axon.axonserver.servers": axon-server
+    restart: always
+    depends_on:
+      - axon-server
+      - oauth20-server
 
   user-query-api:
     image: artarkatesoft/cqrs-user-query-api
-    environment:
-      "spring.data.mongodb.host": mongo
-      "axon.axonserver.servers": axon-server
-
-  oauth20-server:
-    image: artarkatesoft/cqrs-user-oauth-2_0
-    environment:
-      "spring.data.mongodb.host": mongo
+    restart: always
+    depends_on:
+      - axon-server
 
   bankaccount-cmd-api:
     image: artarkatesoft/cqrs-bankaccount-cmd-api
-    environment:
-      "spring.data.mongodb.host": mongo
-      "axon.axonserver.servers": axon-server
 
   mysql:
     image: mysql
@@ -52,13 +45,39 @@ services:
 
   bankaccount-query-api:
     image: artarkatesoft/cqrs-bankaccount-query-api
-    environment:
-      "spring.data.mongodb.host": mongo
-      "axon.axonserver.servers": axon-server
-      "spring.datasource.url": jdbc:mysql://mysql:3306/bank_db
     restart: on-failure:5
     depends_on:
       - mysql
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  oauth20-server:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+    depends_on:
+      - postgres
+    volumes:
+      - ./../../../../docker-compose/project_complete/export:/tmp/export
+      - ./../../../../user-management/user-storage-provider/target/remote-user-storage-provider.jar:/opt/jboss/keycloak/standalone/deployments/remote-user-storage-provider.jar
+    command:
+      - "-b 0.0.0.0"
+      - "-Dkeycloak.migration.action=import"
+      - "-Dkeycloak.migration.provider=singleFile"
+      - "-Dkeycloak.migration.file=/tmp/export/realm-export.json"
+      - "-Dkeycloak.migration.strategy=IGNORE_EXISTING"
 
 
 
