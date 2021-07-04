@@ -9,7 +9,7 @@ services:
     volumes:
       - axon-data:/data
       - axon-eventdata:/eventdata
-      - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\project_complete\config:/config
+      - ./config:/config
 
   mongo:
     image: mongo
@@ -67,29 +67,41 @@ services:
       mongo:
         condition: service_healthy
 
-  oauth20-server:
-    image: artarkatesoft/cqrs-user-oauth-2_0
+  postgres:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      "spring.data.mongodb.host": mongo
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  oauth20-server:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+    ports:
+      - 8080:8080
     depends_on:
-      mongo:
-        condition: service_healthy
+      - postgres
+    volumes:
+      - ./../../user-management/user-storage-provider/target/remote-user-storage-provider.jar:/opt/jboss/keycloak/standalone/deployments/remote-user-storage-provider.jar
 
   bankaccount-cmd-api:
     image: artarkatesoft/cqrs-bankaccount-cmd-api
-    environment:
-      "spring.data.mongodb.host": mongo
-      "axon.axonserver.servers": axon-server
     depends_on:
       mongo:
         condition: service_healthy
 
   bankaccount-query-api:
     image: artarkatesoft/cqrs-bankaccount-query-api
-    environment:
-      "spring.data.mongodb.host": mongo
-      "axon.axonserver.servers": axon-server
-      "spring.datasource.url": jdbc:mysql://mysql:3306/bank_db
     restart: on-failure:5
     depends_on:
       mysql:

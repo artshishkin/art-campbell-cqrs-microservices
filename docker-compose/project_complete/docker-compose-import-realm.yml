@@ -9,7 +9,7 @@ services:
     volumes:
       - axon-data:/data
       - axon-eventdata:/eventdata
-      - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\project_complete\config:/config
+      - ./config:/config
 
   mongo:
     image: mongo
@@ -101,28 +101,21 @@ services:
       - "-Dkeycloak.migration.file=/tmp/export/realm-export.json"
       - "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
 
-#  bankaccount-cmd-api:
-#    image: artarkatesoft/cqrs-bankaccount-cmd-api
-#    environment:
-#      "spring.data.mongodb.host": mongo
-#      "axon.axonserver.servers": axon-server
-#    depends_on:
-#      mongo:
-#        condition: service_healthy
-#
-#  bankaccount-query-api:
-#    image: artarkatesoft/cqrs-bankaccount-query-api
-#    environment:
-#      "spring.data.mongodb.host": mongo
-#      "axon.axonserver.servers": axon-server
-#      "spring.datasource.url": jdbc:mysql://mysql:3306/bank_db
-#    restart: on-failure:5
-#    depends_on:
-#      mysql:
-#        condition: service_healthy
-#      mongo:
-#        condition: service_healthy
-#
+  bankaccount-cmd-api:
+    image: artarkatesoft/cqrs-bankaccount-cmd-api
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  bankaccount-query-api:
+    image: artarkatesoft/cqrs-bankaccount-query-api
+    restart: on-failure:5
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
   api-gateway:
     image: artarkatesoft/cqrs-api-gateway
     ports:
@@ -133,12 +126,10 @@ services:
         condition: service_healthy
       user-query-api:
         condition: service_healthy
-#      bankaccount-cmd-api:
-#        condition: service_healthy
-#      bankaccount-query-api:
-#        condition: service_healthy
-#      oauth20-server:
-#        condition: service_healthy
+      bankaccount-cmd-api:
+        condition: service_healthy
+      bankaccount-query-api:
+        condition: service_healthy
 
 
 volumes:
