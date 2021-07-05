@@ -17,20 +17,16 @@ import java.util.List;
 @Builder
 public class AccountDto {
 
-    @Size(min = 3, max = 255, message = "username must have at least 3 and at most 255 characters")
+    @Size(min = 3, max = 255, message = "{account.username.size}")
     private String username;
 
     @Pattern(
             regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$",
-            message = "Password must contain at least one digit" +
-                    ", one lowercase Latin character" +
-                    ", one uppercase Latin character" +
-                    ", one special character like `! @ # & ( )`" +
-                    ", must have a length of at least 8 characters and a maximum of 20 characters."
+            message = "{account.password.pattern}"
     )
     private String password;
 
-    @NotNull(message = "User role is mandatory")
-    @Size(min = 1, message = "User must have at least 1 Role")
+    @NotNull(message = "{account.roles.not-null}")
+    @Size(min = 1, message = "{account.roles.size}")
     private List<Role> roles;
 }

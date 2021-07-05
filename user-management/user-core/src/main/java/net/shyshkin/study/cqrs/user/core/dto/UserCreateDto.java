@@ -16,16 +16,16 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class UserCreateDto {
 
-    @NotEmpty(message = "firstname is mandatory")
+    @NotEmpty(message = "{user.firstname.not-empty}")
     private String firstname;
 
-    @NotEmpty(message = "lastname is mandatory")
+    @NotEmpty(message = "{user.lastname.not-empty}")
     private String lastname;
 
-    @Email(message = "please provide a valid email address")
+    @Email(message = "{user.email-address.email}")
     private String emailAddress;
 
-    @NotNull(message = "please provide account credentials")
+    @NotNull(message = "{user.account.not-empty}")
     @Valid
     private AccountDto account;
 
