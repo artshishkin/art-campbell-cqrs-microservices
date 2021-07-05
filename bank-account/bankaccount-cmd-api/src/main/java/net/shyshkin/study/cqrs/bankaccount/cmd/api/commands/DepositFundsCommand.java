@@ -17,11 +17,11 @@ import java.util.UUID;
 @Builder
 public class DepositFundsCommand {
 
-    @NotNull(message = "id is mandatory")
+    @NotNull(message = "{account.id.not-null}")
     @TargetAggregateIdentifier
     private UUID id;
 
-    @Positive(message = "Amount must be positive")
+    @Positive(message = "{account.amount.positive}")
     private BigDecimal amount;
 
 }

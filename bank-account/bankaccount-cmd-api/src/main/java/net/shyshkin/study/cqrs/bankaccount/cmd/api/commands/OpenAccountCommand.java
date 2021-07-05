@@ -23,15 +23,15 @@ public class OpenAccountCommand {
     @TargetAggregateIdentifier
     private UUID id;
 
-    @NotEmpty(message = "Account Holder Id is MANDATORY")
-    @Size(min = 36, max = 36, message = "Must be UUID and have 36 characters long")
+    @NotEmpty(message = "{account.holder-id.not-empty}")
+    @Size(min = 36, max = 36, message = "{account.holder-id.size}")
     private String accountHolderId;
 
-    @NotNull(message = "Account type is MANDATORY")
+    @NotNull(message = "{account.type.not-null}")
     private AccountType accountType;
 
-    @NotNull(message = "Opening balance must not be null or empty")
-    @PositiveOrZero(message = "Opening balance must not be negative")
+    @NotNull(message = "{account.opening-balance.not-null}")
+    @PositiveOrZero(message = "{account.opening-balance.positive-or-zero}")
     private BigDecimal openingBalance;
 
 }
