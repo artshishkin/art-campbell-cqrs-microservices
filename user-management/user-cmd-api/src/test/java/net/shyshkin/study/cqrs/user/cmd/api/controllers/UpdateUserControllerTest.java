@@ -152,6 +152,31 @@ class UpdateUserControllerTest extends AbstractDockerComposeTest {
                     .contains("on field 'account.roles':")
                     .contains("User must have at least 1 Role");
         }
+
+        @Test
+        void usernameNotValid() {
+            //given
+            User user = getRandomUser();
+            String userId = user.getId();
+
+            UserCreateDto dto = mapper.toDto(user);
+            dto.getAccount().setUsername("lo");
+
+            //when
+            RequestEntity<UserCreateDto> requestEntity = RequestEntity.put("/api/v1/users/{id}", userId).body(dto);
+            ResponseEntity<BaseResponse> responseEntity = restTemplate
+                    .exchange(requestEntity, BaseResponse.class);
+
+            //then
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            var registerUserResponse = responseEntity.getBody();
+            assertThat(registerUserResponse).isNotNull();
+            assertThat(registerUserResponse.getMessage())
+                    .contains("Validation failed for argument ")
+                    .contains("on field 'account.username':")
+                    .contains("username must have at least 3 and at most 255 characters");
+        }
+
     }
 
     private User getRandomUser() {
