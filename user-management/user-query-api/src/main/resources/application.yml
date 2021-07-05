@@ -18,6 +18,10 @@ spring.security.oauth2.resourceserver.jwt:
 #  issuer-uri: ${app.oauth.uri}/auth/realms/katarinazart
   jwk-set-uri: ${app.oauth.uri}/auth/realms/katarinazart/protocol/openid-connect/certs
 
+spring:
+  messages:
+    basename: i18n-override/messages,i18n/messages
+
 ---
 spring:
   config:

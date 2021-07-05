@@ -28,7 +28,7 @@ public class UserProviderController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<UserProviderResponse> getUserByEmail(
-            @PathVariable @Email(message = "Provide correct email address") String email) {
+            @PathVariable @Email(message = "{user.email-address.email}") String email) {
         var query = new FindUserByEmailQuery(email);
         UserProviderResponse userProviderResponse = queryGateway.query(query, UserProviderResponse.class).join();
         if (userProviderResponse == null)
@@ -38,7 +38,7 @@ public class UserProviderController {
 
     @PostMapping("/email/{email}/verify-password")
     public VerificationPasswordResponse verifyUserByEmailAndPassword(
-            @PathVariable("email") @Email(message = "Provide correct email address") String email,
+            @PathVariable("email") @Email(message = "{user.email-address.email}") String email,
             @RequestBody String password) {
         log.debug("verifyUserByEmailAndPassword(@PathVariable(\"email\") {}, @RequestBody {})", email, password);
 
@@ -49,7 +49,7 @@ public class UserProviderController {
 
     @GetMapping("/username/{username}")
     public ResponseEntity<UserProviderResponse> getUserByUsername(
-            @PathVariable @NotNull @Size(min = 3, max = 255, message = "Username must be from 3 to 255 characters long") String username) {
+            @PathVariable @NotNull @Size(min = 3, max = 255, message = "{account.username.size}") String username) {
         var query = new FindUserByUsernameQuery(username);
         UserProviderResponse userProviderResponse = queryGateway.query(query, UserProviderResponse.class).join();
         if (userProviderResponse == null)
@@ -59,7 +59,7 @@ public class UserProviderController {
 
     @PostMapping("/username/{username}/verify-password")
     public VerificationPasswordResponse verifyUserByUsernameAndPassword(
-            @PathVariable @NotNull @Size(min = 3, max = 255, message = "Username must be from 3 to 255 characters long") String username,
+            @PathVariable @NotNull @Size(min = 3, max = 255, message = "{account.username.size}") String username,
             @RequestBody String password) {
         log.debug("verifyUserByUsernameAndPassword(@PathVariable(\"username\") {}, @RequestBody {})", username, password);
 
