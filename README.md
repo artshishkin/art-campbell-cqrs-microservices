@@ -1,3 +1,6 @@
+[![CircleCI](https://circleci.com/gh/artshishkin/art-campbell-cqrs-microservices.svg?style=svg)](https://circleci.com/gh/artshishkin/art-campbell-cqrs-microservices)
+[![codecov](https://codecov.io/gh/artshishkin/art-campbell-cqrs-microservices/branch/main/graph/badge.svg)](https://codecov.io/gh/artshishkin/art-campbell-cqrs-microservices)
+![Java CI with Maven](https://github.com/artshishkin/art-campbell-cqrs-microservices/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![GitHub issues](https://img.shields.io/github/issues/artshishkin/art-campbell-cqrs-microservices)](https://github.com/artshishkin/art-campbell-cqrs-microservices/issues)
 ![Spring Boot version][springver]
 ![Project licence][licence]
