@@ -15,20 +15,20 @@ services:
 #      start_period: 20s
 
   user-cmd-api:
-    image: artarkatesoft/cqrs-user-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-user-cmd-api
     restart: always
     depends_on:
       - axon-server
       - oauth20-server
 
   user-query-api:
-    image: artarkatesoft/cqrs-user-query-api
+    image: artarkatesoft/art-campbell-cqrs-user-query-api
     restart: always
     depends_on:
       - axon-server
 
   bankaccount-cmd-api:
-    image: artarkatesoft/cqrs-bankaccount-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-cmd-api
 
   mysql:
     image: mysql:8.0.23
@@ -44,7 +44,7 @@ services:
       retries: 10
 
   bankaccount-query-api:
-    image: artarkatesoft/cqrs-bankaccount-query-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-query-api
     restart: on-failure:5
     depends_on:
       - mysql

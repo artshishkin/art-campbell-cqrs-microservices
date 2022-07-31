@@ -9,7 +9,7 @@ services:
     image: mongo:4.4.3
 
   user-query-api:
-    image: artarkatesoft/cqrs-user-query-api
+    image: artarkatesoft/art-campbell-cqrs-user-query-api
     restart: always
     depends_on:
       - axon-server
@@ -53,4 +53,4 @@ services:
       MYSQL_DATABASE: bank_db
 
   bankaccount-cmd-api:
-    image: artarkatesoft/cqrs-bankaccount-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-cmd-api

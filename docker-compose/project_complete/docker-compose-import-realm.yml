@@ -50,7 +50,7 @@ services:
       ADMINER_DEFAULT_SERVER: mysql
 
   user-cmd-api:
-    image: artarkatesoft/cqrs-user-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-user-cmd-api
     environment:
       "spring.data.mongodb.host": mongo
       "axon.axonserver.servers": axon-server
@@ -59,7 +59,7 @@ services:
         condition: service_healthy
 
   user-query-api:
-    image: artarkatesoft/cqrs-user-query-api
+    image: artarkatesoft/art-campbell-cqrs-user-query-api
     environment:
       "spring.data.mongodb.host": mongo
       "axon.axonserver.servers": axon-server
@@ -102,13 +102,13 @@ services:
       - "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
 
   bankaccount-cmd-api:
-    image: artarkatesoft/cqrs-bankaccount-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-cmd-api
     depends_on:
       mongo:
         condition: service_healthy
 
   bankaccount-query-api:
-    image: artarkatesoft/cqrs-bankaccount-query-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-query-api
     restart: on-failure:5
     depends_on:
       mysql:
@@ -117,7 +117,7 @@ services:
         condition: service_healthy
 
   api-gateway:
-    image: artarkatesoft/cqrs-api-gateway
+    image: artarkatesoft/art-campbell-cqrs-api-gateway
     ports:
       - 2000:8080
     restart: on-failure:5
