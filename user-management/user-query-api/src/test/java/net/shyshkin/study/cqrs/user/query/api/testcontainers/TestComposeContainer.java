@@ -6,6 +6,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
+import java.time.Duration;
 
 @Slf4j
 @Getter
@@ -36,7 +37,10 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                     .withExposedService("mongo_1", 27017)
                     .withExposedService("user-cmd-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("oauth20-server_1", 8080,
-                            Wait.forLogMessage(".*Admin console listening on.*\\n", 1))
+                            Wait
+                                    .forLogMessage(".*Admin console listening on.*\\n", 1)
+                                    .withStartupTimeout(Duration.ofSeconds(90))
+                    )
                     .waitingFor("user-query-api_1", Wait.forHealthcheck())
             ;
         }
