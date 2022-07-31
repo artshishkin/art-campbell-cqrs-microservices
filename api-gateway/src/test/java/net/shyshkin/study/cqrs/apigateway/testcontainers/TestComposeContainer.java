@@ -27,6 +27,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
         if (container == null) {
             container = new TestComposeContainer()
                     .withLocalCompose(true)
+                    .withOptions("--compatibility")
                     .withTailChildContainers(true)
                     .waitingFor("axon-server_1",
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))

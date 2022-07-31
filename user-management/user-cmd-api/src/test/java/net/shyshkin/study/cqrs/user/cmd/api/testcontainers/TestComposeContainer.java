@@ -26,7 +26,8 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
     public static TestComposeContainer getInstance() {
         if (container == null) {
             container = new TestComposeContainer()
-                    .withLocalCompose(false)
+                    .withLocalCompose(true)
+                    .withOptions("--compatibility")
                     .withExposedService("axon-server_1", 8124,
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .withExposedService("mongo_1", 27017)
