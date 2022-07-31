@@ -31,7 +31,7 @@ import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
-class UserQueryApiApplicationIT extends AbstractDockerComposeTest {
+class UserQueryApiApplicationTest extends AbstractDockerComposeTest {
 
     RestTemplate userCmdApiRestTemplate;
 
