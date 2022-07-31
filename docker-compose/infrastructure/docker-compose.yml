@@ -1,9 +1,9 @@
-version: '3'
+version: '3.3'
 
 services:
 
   axon-server:
-    image: axoniq/axonserver
+    image: axoniq/axonserver:4.5.1
     ports:
       - 8024:8024
       - 8124:8124
@@ -13,7 +13,7 @@ services:
       - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\infrastructure\config:/config
 
   mongo:
-    image: mongo
+    image: mongo:4.4.3
     ports:
       - 27017:27017
     volumes:

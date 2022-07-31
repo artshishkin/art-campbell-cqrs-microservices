@@ -1,12 +1,12 @@
-version: '3'
+version: '3.3'
 
 services:
 
   axon-server:
-    image: axoniq/axonserver
+    image: axoniq/axonserver:4.5.1
 
   mongo:
-    image: mongo
+    image: mongo:4.4.3
 
   user-cmd-api:
     image: artarkatesoft/cqrs-user-cmd-api
@@ -22,14 +22,14 @@ services:
       - axon-server
 
   postgres:
-    image: postgres
+    image: postgres:13.1
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
 
   oauth20-server:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:13.0.1
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
