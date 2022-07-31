@@ -45,7 +45,7 @@ services:
       - "-Dkeycloak.migration.strategy=IGNORE_EXISTING"
 
   mysql:
-    image: mysql
+    image: mysql:8.0.23
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
       MYSQL_USER: art_user

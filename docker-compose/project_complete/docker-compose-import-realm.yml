@@ -27,7 +27,7 @@ services:
       - 8081:8081
 
   mysql:
-    image: mysql
+    image: mysql:8.0.23
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
       MYSQL_USER: art_user
