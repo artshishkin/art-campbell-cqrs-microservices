@@ -5,7 +5,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, github-actions-docker-build ]
   pull_request:
     branches: [ main ]
 
@@ -22,7 +22,7 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-    - name: Package with Maven without testing
-      run: mvn -B clean package -DskipTests --file pom.xml
+    - name: Install with Maven without testing
+      run: mvn -B clean install -DskipTests --file pom.xml
     - name: Test with Maven
       run: mvn -B verify --file pom.xml
