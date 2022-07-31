@@ -6,6 +6,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
+import java.time.Duration;
 
 @Slf4j
 @Getter
@@ -30,7 +31,9 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                     .withOptions("--compatibility")
                     .withTailChildContainers(true)
                     .waitingFor("axon-server_1",
-                            Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
+                            Wait.forLogMessage(".*Started AxonServer in.*\\n", 1)
+                                    .withStartupTimeout(Duration.ofSeconds(120))
+                    )
                     .waitingFor("mongo_1", Wait.forHealthcheck())
                     .withExposedService("user-cmd-api_1", 8080, Wait.forHealthcheck())
                     .withExposedService("user-query-api_1", 8080, Wait.forHealthcheck())
