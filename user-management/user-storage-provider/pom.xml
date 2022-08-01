@@ -15,7 +15,6 @@
 
     <properties>
         <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
-        <keycloak.version>14.0.0</keycloak.version>
     </properties>
 
     <dependencies>

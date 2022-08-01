@@ -37,6 +37,8 @@
         <axon-spring-boot-starter.version>4.5</axon-spring-boot-starter.version>
         <axon-mongo.version>4.4</axon-mongo.version>
 
+        <keycloak.version>14.0.0</keycloak.version>
+
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
