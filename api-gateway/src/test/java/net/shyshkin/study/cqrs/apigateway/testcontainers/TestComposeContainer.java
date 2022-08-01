@@ -2,17 +2,25 @@ package net.shyshkin.study.cqrs.apigateway.testcontainers;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.time.Duration;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Getter
 public class TestComposeContainer extends DockerComposeContainer<TestComposeContainer> {
 
     private static final String COMPOSE_FILE_PATH = "src/test/resources/compose-test.yml";
+    private static final String ENV_FILE_PATH = "../docker-compose/.env";
     private static TestComposeContainer container;
 
     private static boolean containerStarted = false;
@@ -26,7 +34,11 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
 
     public static TestComposeContainer getInstance() {
         if (container == null) {
+
+            Map<String, String> envVariables = getEnvVariables();
+
             container = new TestComposeContainer()
+                    .withEnv(envVariables)
                     .withLocalCompose(true)
                     .withOptions("--compatibility")
                     .withTailChildContainers(true)
@@ -45,6 +57,24 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
             ;
         }
         return container;
+    }
+
+    @NotNull
+    private static Map<String, String> getEnvVariables() {
+        Properties properties = new Properties();
+        try (Reader reader = new FileReader(ENV_FILE_PATH)) {
+            properties.load(reader);
+        } catch (IOException e) {
+            log.error("", e);
+        }
+
+        Map<String, String> envVariables = properties.entrySet()
+                .stream()
+                .collect(Collectors.toMap(e -> e.getKey().toString(),
+                        e -> e.getValue().toString()));
+
+        log.debug("Docker-compose Environment variables: {}", envVariables);
+        return envVariables;
     }
 
     @Override

@@ -3,10 +3,10 @@ version: '3.3'
 services:
 
   axon-server:
-    image: axoniq/axonserver:4.5.1
+    image: axoniq/axonserver:${AXON_VERSION:-latest}
 
   mongo:
-    image: mongo:4.4.3
+    image: mongo:${MONGO_VERSION:-latest}
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
       interval: 10s
@@ -15,23 +15,23 @@ services:
 #      start_period: 20s
 
   user-cmd-api:
-    image: artarkatesoft/art-campbell-cqrs-user-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-user-cmd-api:${SERVICE_VERSION:-latest}
     restart: always
     depends_on:
       - axon-server
       - oauth20-server
 
   user-query-api:
-    image: artarkatesoft/art-campbell-cqrs-user-query-api
+    image: artarkatesoft/art-campbell-cqrs-user-query-api:${SERVICE_VERSION:-latest}
     restart: always
     depends_on:
       - axon-server
 
   bankaccount-cmd-api:
-    image: artarkatesoft/art-campbell-cqrs-bankaccount-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-cmd-api:${SERVICE_VERSION:-latest}
 
   mysql:
-    image: mysql:8.0.23
+    image: mysql:${MYSQL_VERSION:-latest}
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
       MYSQL_USER: art_user
@@ -44,20 +44,20 @@ services:
       retries: 10
 
   bankaccount-query-api:
-    image: artarkatesoft/art-campbell-cqrs-bankaccount-query-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-query-api:${SERVICE_VERSION:-latest}
     restart: on-failure:5
     depends_on:
       - mysql
 
   postgres:
-    image: postgres:13.1
+    image: postgres:${POSTGRES_VERSION:-latest}
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
 
   oauth20-server:
-    image: quay.io/keycloak/keycloak:13.0.1
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-latest}
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
