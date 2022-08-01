@@ -2,7 +2,6 @@ package net.shyshkin.study.cqrs.user.core.converters;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +15,7 @@ import java.util.stream.Stream;
 public class KeycloakAuthorityConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
     @Override
-    public Collection<GrantedAuthority> convert(@NotNull Jwt jwt) {
+    public Collection<GrantedAuthority> convert(Jwt jwt) {
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.addAll(getRoleBasedAuthorities(jwt));

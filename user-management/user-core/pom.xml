@@ -6,11 +6,11 @@
     <parent>
         <groupId>net.shyshkin.study.cqrs</groupId>
         <artifactId>user-management</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>user-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+
     <name>user-core</name>
     <description>The User Core Project</description>
     <properties>

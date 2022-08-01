@@ -6,11 +6,11 @@
     <parent>
         <groupId>net.shyshkin.study.cqrs</groupId>
         <artifactId>user-management</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>user-query-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+
     <name>user-query-api</name>
     <description>User Query API Project</description>
 
@@ -19,7 +19,6 @@
         <dependency>
             <groupId>net.shyshkin.study.cqrs</groupId>
             <artifactId>user-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

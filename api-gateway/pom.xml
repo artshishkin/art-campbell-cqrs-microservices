@@ -5,15 +5,15 @@
     <parent>
         <groupId>net.shyshkin.study.cqrs</groupId>
         <artifactId>art-campbell-cqrs-microservices</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>api-gateway</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+
     <name>api-gateway</name>
     <description>API Gateway Project</description>
     <properties>
-        <spring-cloud.version>2020.0.3</spring-cloud.version>
+
     </properties>
     <dependencies>
         <dependency>
@@ -24,7 +24,6 @@
         <dependency>
             <groupId>net.shyshkin.study.cqrs</groupId>
             <artifactId>user-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -47,16 +46,5 @@
         </dependency>
 
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
 </project>
