@@ -6,12 +6,15 @@ import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
 @Getter
 public class TestComposeContainer extends DockerComposeContainer<TestComposeContainer> {
 
     private static final String COMPOSE_FILE_PATH = "src/test/resources/compose-test.yml";
+    private static final String ENV_FILE_PATH = "../../docker-compose/.env";
     private static TestComposeContainer container;
 
     private static boolean containerStarted = false;
@@ -25,9 +28,12 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
 
     public static TestComposeContainer getInstance() {
         if (container == null) {
+
+            Path envFilePath = Paths.get(ENV_FILE_PATH).toAbsolutePath().normalize();
+
             container = new TestComposeContainer()
                     .withLocalCompose(true)
-                    .withOptions("--compatibility")
+                    .withOptions("--compatibility", "--env-file " + envFilePath)
                     .withExposedService("axon-server_1", 8124,
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .withExposedService("mongo_1", 27017)

@@ -3,7 +3,7 @@ version: '3.3'
 services:
 
   axon-server:
-    image: axoniq/axonserver:4.5.1
+    image: axoniq/axonserver:${AXON_VERSION:-latest}
     ports:
       - 8024:8024
     volumes:
@@ -12,7 +12,7 @@ services:
       - ./config:/config
 
   mongo:
-    image: mongo:4.4.3
+    image: mongo:${MONGO_VERSION:-latest}
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
       interval: 10s
@@ -27,7 +27,7 @@ services:
       - 8081:8081
 
   mysql:
-    image: mysql:8.0.23
+    image: mysql:${MYSQL_VERSION:-latest}
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
       MYSQL_USER: art_user
@@ -50,7 +50,7 @@ services:
       ADMINER_DEFAULT_SERVER: mysql
 
   user-cmd-api:
-    image: artarkatesoft/art-campbell-cqrs-user-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-user-cmd-api:${SERVICE_VERSION:-latest}
     environment:
       "spring.data.mongodb.host": mongo
       "axon.axonserver.servers": axon-server
@@ -59,7 +59,7 @@ services:
         condition: service_healthy
 
   user-query-api:
-    image: artarkatesoft/art-campbell-cqrs-user-query-api
+    image: artarkatesoft/art-campbell-cqrs-user-query-api:${SERVICE_VERSION:-latest}
     environment:
       "spring.data.mongodb.host": mongo
       "axon.axonserver.servers": axon-server
@@ -68,7 +68,7 @@ services:
         condition: service_healthy
 
   postgres:
-    image: postgres:13.1
+    image: postgres:${POSTGRES_VERSION:-latest}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -77,7 +77,7 @@ services:
       POSTGRES_PASSWORD: password
 
   oauth20-server:
-    image: quay.io/keycloak/keycloak:13.0.1
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-latest}
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
@@ -102,13 +102,13 @@ services:
       - "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
 
   bankaccount-cmd-api:
-    image: artarkatesoft/art-campbell-cqrs-bankaccount-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-cmd-api:${SERVICE_VERSION:-latest}
     depends_on:
       mongo:
         condition: service_healthy
 
   bankaccount-query-api:
-    image: artarkatesoft/art-campbell-cqrs-bankaccount-query-api
+    image: artarkatesoft/art-campbell-cqrs-bankaccount-query-api:${SERVICE_VERSION:-latest}
     restart: on-failure:5
     depends_on:
       mysql:
@@ -117,7 +117,7 @@ services:
         condition: service_healthy
 
   api-gateway:
-    image: artarkatesoft/art-campbell-cqrs-api-gateway
+    image: artarkatesoft/art-campbell-cqrs-api-gateway:${SERVICE_VERSION:-latest}
     ports:
       - 2000:8080
     restart: on-failure:5

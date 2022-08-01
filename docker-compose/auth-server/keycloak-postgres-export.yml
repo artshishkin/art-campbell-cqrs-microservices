@@ -6,7 +6,7 @@ volumes:
 
 services:
   postgres:
-    image: postgres:13.1
+    image: postgres:${POSTGRES_VERSION:-latest}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -16,7 +16,7 @@ services:
 
 # Open http://localhost:8080/auth and login as user 'admin' with password 'Pa55w0rd'.
   keycloak:
-    image: quay.io/keycloak/keycloak:13.0.1
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-latest}
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres

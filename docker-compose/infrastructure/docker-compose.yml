@@ -3,7 +3,7 @@ version: '3.3'
 services:
 
   axon-server:
-    image: axoniq/axonserver:4.5.1
+    image: axoniq/axonserver:${AXON_VERSION:-latest}
     ports:
       - 8024:8024
       - 8124:8124
@@ -13,7 +13,7 @@ services:
       - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\infrastructure\config:/config
 
   mongo:
-    image: mongo:4.4.3
+    image: mongo:${MONGO_VERSION:-latest}
     ports:
       - 27017:27017
     volumes:
@@ -25,7 +25,7 @@ services:
       - 8081:8081
 
   mysql:
-    image: mysql:8.0.23
+    image: mysql:${MYSQL_VERSION:-latest}
     ports:
       - '23306:3306'
     environment:
