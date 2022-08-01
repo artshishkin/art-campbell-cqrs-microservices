@@ -3,33 +3,33 @@ version: '3.3'
 services:
 
   axon-server:
-    image: axoniq/axonserver:4.5.1
+    image: axoniq/axonserver:${AXON_VERSION:-latest}
 
   mongo:
-    image: mongo:4.4.3
+    image: mongo:${MONGO_VERSION:-latest}
 
   user-cmd-api:
-    image: artarkatesoft/art-campbell-cqrs-user-cmd-api
+    image: artarkatesoft/art-campbell-cqrs-user-cmd-api:${SERVICE_VERSION:-latest}
     restart: always
     depends_on:
       - axon-server
       - oauth20-server
 
   user-query-api:
-    image: artarkatesoft/art-campbell-cqrs-user-query-api
+    image: artarkatesoft/art-campbell-cqrs-user-query-api:${SERVICE_VERSION:-latest}
     restart: always
     depends_on:
       - axon-server
 
   postgres:
-    image: postgres:13.1
+    image: postgres:${POSTGRES_VERSION:-latest}
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
 
   oauth20-server:
-    image: quay.io/keycloak/keycloak:13.0.1
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-latest}
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
