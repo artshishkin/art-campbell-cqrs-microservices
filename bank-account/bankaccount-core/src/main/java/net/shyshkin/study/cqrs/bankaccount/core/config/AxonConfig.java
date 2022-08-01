@@ -2,6 +2,7 @@ package net.shyshkin.study.cqrs.bankaccount.core.config;
 
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
+import com.thoughtworks.xstream.XStream;
 import org.axonframework.eventhandling.tokenstore.TokenStore;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
@@ -73,6 +74,17 @@ public class AxonConfig {
                 .storageEngine(eventStorageEngine())
                 .messageMonitor(configuration.messageMonitor(EventStore.class, "eventStore"))
                 .build();
+    }
+
+    @Bean
+    public XStream xStream() {
+        XStream xStream = new XStream();
+
+        xStream.allowTypesByWildcard(new String[]{
+                "net.shyshkin.study.cqrs.**",
+                "java.util.**"
+        });
+        return xStream;
     }
 
 }
