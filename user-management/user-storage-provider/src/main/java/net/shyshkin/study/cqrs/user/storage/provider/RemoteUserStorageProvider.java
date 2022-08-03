@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputValidator;
+import org.keycloak.credential.LegacyUserCredentialManager;
 import org.keycloak.credential.UserCredentialStore;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
@@ -69,6 +67,12 @@ public class RemoteUserStorageProvider implements UserStorageProvider,
             @Override
             public String getEmail() {
                 return user.getEmail();
+            }
+
+            @Override
+            public SubjectCredentialManager credentialManager() {
+
+                return new LegacyUserCredentialManager(session, realm, this);
             }
 
             @Override

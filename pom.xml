@@ -37,7 +37,7 @@
         <axon-spring-boot-starter.version>4.5.14</axon-spring-boot-starter.version>
         <axon-mongo.version>4.5</axon-mongo.version>
 
-        <keycloak.version>14.0.0</keycloak.version>
+        <keycloak.version>19.0.1</keycloak.version>
 
         <spring-cloud.version>2021.0.3</spring-cloud.version>
 

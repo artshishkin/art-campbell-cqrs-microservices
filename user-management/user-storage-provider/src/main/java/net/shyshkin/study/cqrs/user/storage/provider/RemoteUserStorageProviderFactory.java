@@ -1,7 +1,7 @@
 package net.shyshkin.study.cqrs.user.storage.provider;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.storage.UserStorageProviderFactory;
@@ -22,7 +22,7 @@ public class RemoteUserStorageProviderFactory implements UserStorageProviderFact
     }
 
     private UsersApiService buildHttpClient(String uri) {
-        var client = new ResteasyClientBuilder().build();
+        var client = new ResteasyClientBuilderImpl().build();
         ResteasyWebTarget target = client.target(uri);
 
         return target
