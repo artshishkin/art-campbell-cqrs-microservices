@@ -1,0 +1,43 @@
+# To get JWT access token we can use
+# 1 Password Grant Type (simpler, just for testing)
+# or
+# 2 Authorization code Grant Type
+
+### Get openid-configuration
+GET http://localhost:8080/realms/katarinazart/.well-known/openid-configuration
+Accept: application/json
+Authorization: Basic springbankClient BJ3cbXk16VWdeevUSYrtVyT2XWurOmey
+
+### 1 GET Access Token - Password grant_type
+POST http://localhost:8080/realms/katarinazart/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=springbankClient&client_secret=BJ3cbXk16VWdeevUSYrtVyT2XWurOmey&scope=openid profile&username=shyshkin.art&password=P@ssW0rd!
+
+> {% client.global.set("access_token", response.body.access_token); %}
+
+### 2 GET Authorization code (Authorization code Grant Type) - manually in browser
+GET http://localhost:8080/realms/katarinazart/protocol/openid-connect/auth?response_type=code&client_id=springbankClient&scope=openid profile&state=jskd879sdkj&redirect_uri=http://localhost:8083/no_matter_callback
+Accept: */*
+
+# Sign In using
+# username = shyshkin.art
+# password = P@ssW0rd!
+
+# Copy code from redirect URI
+
+### 2 Get Access token (Authorization code Grant Type)
+POST http://localhost:8080/realms/katarinazart/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+#Authorization: Basic springbankClient BJ3cbXk16VWdeevUSYrtVyT2XWurOmey
+
+grant_type=authorization_code&client_id=springbankClient&client_secret=BJ3cbXk16VWdeevUSYrtVyT2XWurOmey&scope=openid%20profile&redirect_uri=http://localhost:8083/no_matter_callback&code=8f6f6c61-db23-4418-9db0-7069ff07e8ff.44b74481-cf7d-443a-a138-9efdcd9c4d95.c10b3c5f-fcc4-40fd-890e-dcbd7b18e6b2
+
+> {% client.global.set("access_token", response.body.access_token); %}
+
+### Get userinfo
+GET http://localhost:8080/realms/katarinazart/protocol/openid-connect/userinfo
+Accept: application/json
+Authorization: Bearer {{access_token}}
+
+
