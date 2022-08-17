@@ -4,7 +4,7 @@
 
 1. Start Keycloak server 
    - From folder ./docker-compose run
-   - `docker-compose -f auth-server/keycloak-postgres.yml -env-file .env up -d`
+   - `docker-compose -f auth-server/keycloak-postgres.yml --env-file .env up -d`
 2. Log in 
    - [http://localhost:8080/admin](http://localhost:8080/admin)
    - Username: `admin`
@@ -185,6 +185,12 @@ curl --location --request POST 'http://localhost:8080/realms/katarinazart/protoc
    "scope":"openid profile email"
 }
 ```
+
+### 4. Export Realm
+
+- Start exporting with compose file [keycloak-postgres-export.yml](/docker-compose/auth-server/keycloak-postgres-export.yml)
+  - From folder ./docker-compose run
+  - `docker-compose -f auth-server/keycloak-postgres-export.yml --env-file .env up -d`
 
 
 

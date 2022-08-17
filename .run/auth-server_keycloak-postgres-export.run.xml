@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="auth-server/keycloak-postgres-export" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+    <deployment type="docker-compose.yml">
+      <settings>
+        <option name="envFilePath" value="C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\.env" />
+        <option name="sourceFilePath" value="docker-compose/auth-server/keycloak-postgres-export.yml" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 
 volumes:
   postgres_data:
@@ -13,27 +13,34 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 10s
+      timeout: 60s
+      retries: 10
+      start_period: 20s
 
 # Open http://localhost:8080/auth and login as user 'admin' with password 'Pa55w0rd'.
   keycloak:
-    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-latest}
+    build:
+      dockerfile: Dockerfile
+      args:
+        KEYCLOAK_VERSION: ${KEYCLOAK_VERSION}
+    command:
+      - "export --file /tmp/export/realm-export.json"
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: password
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: Pa55w0rd
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
     ports:
       - 8080:8080
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\auth-server\export:/tmp/export
-    command:
-      - "-b 0.0.0.0"
-      - "-Dkeycloak.migration.action=export"
-      - "-Dkeycloak.migration.provider=singleFile"
-      - "-Dkeycloak.migration.file=/tmp/export/realm-export.json"
+
+
