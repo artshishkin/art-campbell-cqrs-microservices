@@ -192,7 +192,11 @@ curl --location --request POST 'http://localhost:8080/realms/katarinazart/protoc
   - From folder ./docker-compose run
   - `docker-compose -f auth-server/keycloak-postgres-export.yml --env-file .env up -d`
 
+### 5. Import realm
 
+- Start import with compose file [keycloak-postgres-import.yml](/docker-compose/auth-server/keycloak-postgres-import.yml)
+    - From folder ./docker-compose run
+    - `docker-compose -f auth-server/keycloak-postgres-import.yml --env-file .env up -d`
 
 
 
