@@ -27,7 +27,7 @@ services:
       args:
         KEYCLOAK_VERSION: ${KEYCLOAK_VERSION}
     command:
-      - "export --file /tmp/export/realm-export.json"
+      - "export --file /tmp/export/realm-export.json --realm katarinazart"
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
