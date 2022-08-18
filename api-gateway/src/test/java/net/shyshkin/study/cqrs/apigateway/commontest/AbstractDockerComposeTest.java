@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.cqrs.apigateway.dto.OAuthResponse;
 import net.shyshkin.study.cqrs.apigateway.testcontainers.TestComposeContainer;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
