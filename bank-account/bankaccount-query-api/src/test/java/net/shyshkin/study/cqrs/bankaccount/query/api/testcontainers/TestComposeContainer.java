@@ -39,7 +39,7 @@ public class TestComposeContainer extends DockerComposeContainer<TestComposeCont
                             Wait.forLogMessage(".*Started AxonServer in.*\\n", 1))
                     .withExposedService("mongo_1", 27017)
                     .withExposedService("oauth20-server_1", 8080,
-                            Wait.forLogMessage(".*Admin console listening on.*\\n", 1))
+                            Wait.forLogMessage(".*Running the server in development mode. DO NOT use this configuration in production.*", 1))
                     .withExposedService("mysql_1", 3306,
                             Wait.forLogMessage(".*/usr/sbin/mysqld: ready for connections. Version.*\\n", 1))
                     .waitingFor("user-query-api_1", Wait.forHealthcheck())
