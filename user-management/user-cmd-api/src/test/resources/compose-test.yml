@@ -18,23 +18,20 @@ services:
   oauth20-server:
     image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-latest}
     environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_SCHEMA: public
-      DB_PASSWORD: password
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: Pa55w0rd
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_HOSTNAME: localhost
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Pa55w0rd
     depends_on:
       - postgres
+    ports:
+      - "8080:8080"
     volumes:
-      - ./../../../../../docker-compose/auth-server/export:/tmp/export
-#      - /C/Users/Admin/IdeaProjects/Study/SeanCampbell/CQRS_EventSourcing_Microservices/art-campbell-cqrs-microservices/docker-compose/auth-server/export:/tmp/export
-#      - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\auth-server\export:/tmp/export
+      - ./../../../../../docker-compose/auth-server/export:/opt/keycloak/data/import:ro
+#      - ./../../../../../docker-compose/project_complete/export:/opt/keycloak/data/import:ro
+#      - ./../../../../../user-management/user-storage-provider/target/remote-user-storage-provider.jar:/opt/keycloak/providers/remote-user-storage-provider.jar
     command:
-      - "-b 0.0.0.0"
-      - "-Dkeycloak.migration.action=import"
-      - "-Dkeycloak.migration.provider=singleFile"
-      - "-Dkeycloak.migration.file=/tmp/export/realm-export.json"
-      - "-Dkeycloak.migration.strategy=IGNORE_EXISTING"
+      - "start-dev --import-realm"

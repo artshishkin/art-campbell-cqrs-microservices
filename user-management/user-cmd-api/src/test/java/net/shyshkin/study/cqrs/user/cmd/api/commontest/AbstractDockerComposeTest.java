@@ -61,7 +61,8 @@ public abstract class AbstractDockerComposeTest {
     protected static String jwtAccessToken;
 
     protected static String clientId = "springbankClient";
-    protected static String clientSecret = "674ae476-7591-4078-82e9-5eaea5e71cff";
+//    protected static String clientSecret = "674ae476-7591-4078-82e9-5eaea5e71cff";
+    protected static String clientSecret = "BJ3cbXk16VWdeevUSYrtVyT2XWurOmey";
 
     @LocalServerPort
     protected int randomServerPort;
@@ -95,7 +96,7 @@ public abstract class AbstractDockerComposeTest {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
 
         var responseEntity = oauthServerRestTemplate
-                .postForEntity("/auth/realms/katarinazart/protocol/openid-connect/token", requestEntity, OAuthResponse.class);
+                .postForEntity("/realms/katarinazart/protocol/openid-connect/token", requestEntity, OAuthResponse.class);
 
         //then
         log.debug("Response from OAuth2.0 server: {}", responseEntity);
