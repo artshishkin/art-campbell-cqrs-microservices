@@ -13,10 +13,10 @@
     <logger name="net.shyshkin.study" level="debug" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.testcontainers" level="INFO">
+    <logger name="org.testcontainers" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="com.github.dockerjava" level="WARN">
+    <logger name="com.github.dockerjava" level="WARN" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 </included>
