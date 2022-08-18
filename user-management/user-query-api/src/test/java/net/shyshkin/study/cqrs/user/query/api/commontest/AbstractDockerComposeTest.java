@@ -80,7 +80,7 @@ public abstract class AbstractDockerComposeTest {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(map, headers);
 
         var responseEntity = oauthServerRestTemplate
-                .postForEntity("/auth/realms/katarinazart/protocol/openid-connect/token", requestEntity, OAuthResponse.class);
+                .postForEntity("/realms/katarinazart/protocol/openid-connect/token", requestEntity, OAuthResponse.class);
 
         //then
         log.debug("Response from OAuth2.0 server: {}", responseEntity);

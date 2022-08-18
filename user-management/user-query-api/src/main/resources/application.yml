@@ -16,7 +16,7 @@ axon.axonserver.servers: axon-server
 app.oauth.uri: http://oauth20-server:8080
 spring.security.oauth2.resourceserver.jwt:
 #  issuer-uri: ${app.oauth.uri}/auth/realms/katarinazart
-  jwk-set-uri: ${app.oauth.uri}/auth/realms/katarinazart/protocol/openid-connect/certs
+  jwk-set-uri: ${app.oauth.uri}/realms/katarinazart/protocol/openid-connect/certs
 
 spring:
   messages:
