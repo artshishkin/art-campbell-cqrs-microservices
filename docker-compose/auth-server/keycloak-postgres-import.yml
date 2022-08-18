@@ -40,6 +40,6 @@ services:
     depends_on:
       - postgres
     volumes:
-      - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\auth-server\export:/opt/keycloak/data/import:ro
+      - ./export:/opt/keycloak/data/import:ro
 
 

@@ -41,6 +41,6 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - C:\Users\Admin\IdeaProjects\Study\SeanCampbell\CQRS_EventSourcing_Microservices\art-campbell-cqrs-microservices\docker-compose\auth-server\export:/tmp/export
+      - ./export:/tmp/export
 
 
