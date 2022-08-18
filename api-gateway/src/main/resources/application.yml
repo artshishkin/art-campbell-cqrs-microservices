@@ -39,9 +39,9 @@ spring:
             - Path=/api/v1/accounts/**
             - Method=GET
         - id: oauth20-server
-          uri: ${app.routes.uri.oauth20-server}/auth/**
+          uri: ${app.routes.uri.oauth20-server}/realms/**
           predicates:
-            - Path=/auth/**
+            - Path=/realms/**
 
 ---
 spring:

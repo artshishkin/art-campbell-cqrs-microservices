@@ -74,7 +74,7 @@ public abstract class AbstractDockerComposeTest {
 
         ResponseEntity<OAuthResponse> responseEntity = oauthServerWebClient
                 .post()
-                .uri("/auth/realms/katarinazart/protocol/openid-connect/token")
+                .uri("/realms/katarinazart/protocol/openid-connect/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(map))
                 .retrieve()
