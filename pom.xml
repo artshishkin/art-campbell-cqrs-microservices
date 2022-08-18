@@ -23,6 +23,7 @@
         <module>user-management</module>
         <module>api-gateway</module>
         <module>bank-account</module>
+        <module>common-test</module>
     </modules>
 
     <properties>
@@ -55,6 +56,11 @@
             <dependency>
                 <groupId>net.shyshkin.study.cqrs</groupId>
                 <artifactId>bankaccount-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.shyshkin.study.cqrs</groupId>
+                <artifactId>common-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

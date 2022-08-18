@@ -23,6 +23,11 @@
 
         <dependency>
             <groupId>net.shyshkin.study.cqrs</groupId>
+            <artifactId>common-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.shyshkin.study.cqrs</groupId>
             <artifactId>user-core</artifactId>
             <scope>test</scope>
             <exclusions>
