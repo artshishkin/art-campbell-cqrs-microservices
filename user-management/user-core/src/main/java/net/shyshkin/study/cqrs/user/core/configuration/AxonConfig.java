@@ -14,6 +14,7 @@ import org.axonframework.extensions.mongo.eventsourcing.eventstore.MongoFactory;
 import org.axonframework.extensions.mongo.eventsourcing.eventstore.MongoSettingsFactory;
 import org.axonframework.extensions.mongo.eventsourcing.tokenstore.MongoTokenStore;
 import org.axonframework.serialization.Serializer;
+import org.axonframework.serialization.xml.XStreamSerializer;
 import org.axonframework.spring.config.AxonConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -63,6 +64,17 @@ public class AxonConfig {
                 .mongoTemplate(
                         DefaultMongoTemplate.builder()
                                 .mongoDatabase(mongoClient())
+                                .build()
+                )
+                .eventSerializer(
+                        XStreamSerializer.builder()
+                                .xStream(xStream())
+                                .build()
+
+                )
+                .snapshotSerializer(
+                        XStreamSerializer.builder()
+                                .xStream(xStream())
                                 .build()
                 )
                 .build();
